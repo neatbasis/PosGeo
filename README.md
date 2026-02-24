@@ -1,42 +1,77 @@
-# posgeo (Work In Proggress)
+# posgeo
 
-**Executable Specification of Canonical Form Axioms for a 2D Positive Geometry**
-
-## Purpose
-
-This repository implements a minimal, symbolic verification framework for the canonical differential form of a convex positive geometry.
-
-The objective is not merely to compute a form, but to encode the defining axioms of canonical forms as executable invariants and verify them rigorously in a concrete example.
-
-In its current state, the repository provides a complete structural validation of the canonical 2-form associated with a nontrivial convex pentagon (“M1 region”) in two dimensions.
-
-The author provides no guarantees that any of this is actually true right now. 
-
-**Consider this repository as a Draft!!!**
+## Executable Specification of Canonical Form Axioms for a 2D Positive Geometry
 
 ---
 
-## Conceptual Framing
+## Project Status
 
-Canonical forms of positive geometries (cf. Arkani-Hamed et al.) are uniquely characterized by structural properties:
+* **v0.1 (current focus)** — Structural validation of canonical-form axioms in a concrete 2D example (M1 pentagon)
+* **v0.2 (next milestone)** — Strengthened log-singularity enforcement (SingularityGate)
+* **v0.3 (planned)** — Boundary-first reconstruction engine (triangulation-free solver)
+
+---
+
+## Purpose
+
+This repository implements a **minimal symbolic verification framework** for the canonical differential form of a convex positive geometry.
+
+The objective is not merely to compute a form, but to encode the defining structural axioms of canonical forms as executable invariants and verify them rigorously in a concrete example.
+
+The current milestone (v0.1) focuses on:
+
+* Triangulation confluence
+* Pole locality
+* Residue recursion
+* Chart invariance
+* Deterministic orientation handling
+
+The M1 pentagon serves as a nontrivial structural testbed.
+
+---
+
+## Domain Contract (Explicit Scope)
+
+All guarantees and invariants currently apply only within:
+
+* Convex
+* Affine
+* 2D
+* Bounded
+* Linear-facet
+* Exact rational arithmetic
+
+### Not Currently Supported
+
+* Unbounded or projective geometries
+* Nonlinear boundary curves
+* Higher-dimensional geometries
+* Non-logarithmic singularities
+* Floating-point validation
+
+Any extension beyond this domain requires explicit revision of assumptions and invariants.
+
+---
+
+# Conceptual Framing
+
+Canonical forms of positive geometries (cf. Arkani-Hamed–Bai–Lam) are uniquely characterized by structural properties:
 
 1. Logarithmic singularities only on boundary components
 2. Absence of spurious poles
-3. Residues along facets equal canonical forms of the boundary geometries
+3. Residues along facets equal canonical forms of boundary geometries
 4. Triangulation independence
 5. Orientation-consistent recursive factorization
 
 This repository encodes these properties directly as symbolic tests.
 
-The philosophy is:
-
 > If any of these invariants fail, the form is not canonical.
 
-Thus, the test suite serves as an executable specification of canonical form axioms in this example.
+Thus, the test suite functions as an executable specification of canonical-form axioms in this example.
 
 ---
 
-## Implemented Geometry: The M1 Pentagon
+# Implemented Geometry: The M1 Pentagon
 
 The region is defined by the inequalities:
 
@@ -48,82 +83,86 @@ The region is defined by the inequalities:
 
 Vertices (counterclockwise order):
 
-```
-(0, 1/2), (0, 1), (1, 1), (1, 0), (1/2, 0)
+```id="m1-vertices"
+(0, 1/2)
+(0, 1)
+(1, 1)
+(1, 0)
+(1/2, 0)
 ```
 
 Two independent triangulations are implemented.
 
+These triangulations are not part of the geometry itself; they serve as falsifiability instruments for structural validation.
+
 ---
 
-## Structural Invariants Enforced
+# Structural Invariants Enforced (v0.1)
 
-### 1. Triangulation Confluence
+## 1. Triangulation Confluence
 
-The canonical form of a positive geometry must be independent of triangulation.
+The canonical form must be independent of triangulation.
 
-To enforce this invariant, the repository implements two independent triangulations of the M1 pentagon. These triangulations are not part of the geometry itself; they serve as falsifiability instruments for the construction.
-
-We require symbolically that:
+Symbolically:
 
 [
 \Omega_A = \Omega_B
 ]
 
-Equality is enforced by exact symbolic simplification and independently confirmed numerically over sampled interior points.
+Equality is enforced via exact symbolic simplification and independently confirmed numerically over interior sample points.
 
-If the forms differed, this would indicate either:
+A mismatch would indicate:
 
-* Failure of internal pole cancellation,
-* Incorrect orientation handling,
-* Or violation of canonical form axioms.
+* Failure of internal pole cancellation
+* Incorrect orientation handling
+* Violation of canonical-form axioms
 
-Thus, multiple triangulations are used strictly to verify structural confluence, not as competing constructions.
+Triangulation is used strictly as a regression instrument, not as the definition of canonical form.
 
 ---
 
-### 2. Pole Locality (No Spurious Poles)
+## 2. Pole Locality (No Spurious Poles)
 
-The denominator factors of the canonical form are proven to be subsets of the boundary facet equations.
+The denominator factors of the canonical form must correspond to boundary facet equations.
 
 Internal triangulation poles cancel symbolically.
 
-This ensures that the form has singularities only on geometric boundaries.
+This ensures singularities occur only on geometric boundaries.
 
 ---
 
-### 3. Residue Factorization
+## 3. Residue Factorization
 
 For each boundary facet:
 
 * The residue of the canonical 2-form is computed.
-* The result is verified to match the canonical 1-form of the corresponding interval:
+* It must match the canonical 1-form of the corresponding interval:
 
 [
 \omega = \frac{1}{t-a} + \frac{1}{b-t}
 ]
 
-This encodes the recursive defining property of canonical forms.
+This encodes recursive boundary structure.
 
 ---
 
-### 4. Chart-Independence
+## 4. Chart-Independence
 
 Each facet is equipped with multiple coordinate charts.
 
-Residues computed in distinct charts are proven to agree after explicit pullback:
+Residues computed in distinct charts must agree after explicit pullback:
 
 [
 \omega(t_1) \longrightarrow \omega(t_1(t_0)) \frac{dt_1}{dt_0}
 ]
 
-Degenerate constant reparameterizations are explicitly detected and rejected.
+Degenerate constant reparameterizations are detected and rejected.
 
-This ensures coordinate invariance of boundary structure.
+This enforces coordinate invariance of boundary structure.
 
 ---
 
-### 5. Deterministic Orientation
+## 5. Deterministic Orientation
 
 Boundary orientation is fixed via:
 
@@ -131,21 +170,15 @@ Boundary orientation is fixed via:
 * Outward-normal detection
 * Explicit sign correction
 
-This resolves ambiguities between:
-
-* Normal direction,
-* Chart parameter direction,
-* Boundary orientation.
-
 Residues are therefore deterministic, not merely equal up to sign.
 
 ---
 
-## Demo
+# Demo
 
 Run:
 
-```bash
+```bash id="demo-run"
 python -m posgeo.demos.demo_m1_pentagon
 ```
 
@@ -155,25 +188,13 @@ The demo prints:
 * Symbolic equality check
 * Residue comparisons per facet
 
-When comparing residues, output of the form:
-
-```
-Diff: X or Y
-```
-
-means:
-
-* If either expression simplifies to zero, the forms agree (possibly up to orientation convention).
-
-The full deterministic sign consistency is enforced in the test suite.
-
 ---
 
-## Test Suite
+# Test Suite
 
 Run:
 
-```bash
+```bash id="test-run"
 pytest
 ```
 
@@ -183,35 +204,61 @@ The test suite enforces:
 * Triangulation confluence (symbolic and numeric)
 * Pole locality
 * Residue correctness
-* Chart-independence via pullback
-* Deterministic orientation consistency
+* Chart-independence
+* Deterministic orientation
 * Non-degenerate reparameterizations
 
-Failure of any test indicates violation of a canonical form axiom.
+Failure of any test indicates violation of canonical-form axioms within the declared domain.
 
 ---
 
-## What This Repository Is
+# Upcoming Work
 
-* A minimal executable model of canonical form axioms
+## v0.2 — Strengthened Log-Singularity Enforcement
+
+The next milestone introduces **SingularityGate**, a stricter validator that will:
+
+* Detect higher-order poles explicitly
+* Enforce simple-pole structure locally
+* Provide residue certificates
+* Strengthen coordinate-invariant validation
+
+This will upgrade pole-locality checks from denominator-based heuristics to definition-level enforcement.
+
+---
+
+## v0.3 — Boundary Reconstruction Engine
+
+Longer-term goals include:
+
+* Constraint-based canonical-form construction
+* Triangulation-free solver
+* Using log-purity validation as a termination oracle
+
+---
+
+# What This Repository Is
+
+* A minimal executable model of canonical-form axioms
 * A symbolic verification laboratory
-* A structural, not numerical, implementation
+* A structural (not numerical) implementation
 * A foundation for higher-dimensional generalization
 
 ---
 
-## What It Is Not (Yet)
+# What It Is Not (Yet)
 
 * Not a general polytope engine
 * Not higher-dimensional
 * Not amplituhedron-scale
 * Not optimized for performance
+* Not a general existence proof
 
 The focus is structural correctness and axiomatic fidelity.
 
 ---
 
-## Research Direction
+# Research Direction
 
 Future extensions may include:
 
@@ -221,20 +268,13 @@ Future extensions may include:
 * Automatic triangulation generation
 * Extensions toward Grassmannian / amplituhedron-type geometries
 
----
-
-## Summary
-
-This repository encodes canonical form axioms as executable symbolic invariants and verifies them in a nontrivial 2D example.
-
-It is intended as a minimal, rigorous computational laboratory for studying canonical differential forms of positive geometries.
-
+The long-term aim is to treat canonical-form axioms as executable contracts.
 
 ---
 
 # 📚 Foundational Papers & Articles
 
-This project is inspired by the development of **positive geometry**, the **amplituhedron**, and related structures connecting combinatorics, geometry, and scattering amplitudes.
+This project builds on the development of **positive geometry**, the **amplituhedron**, and related structures connecting combinatorics, geometry, and scattering amplitudes.
 
 ---
 
@@ -243,12 +283,10 @@ This project is inspired by the development of **positive geometry**, the **ampl
 * **N. Arkani-Hamed, J. Trnka (2013)**
   *The Amplituhedron*
   [https://arxiv.org/abs/1312.2007](https://arxiv.org/abs/1312.2007)
-  Introduces the amplituhedron as a geometric object whose canonical form computes scattering amplitudes in planar N=4 SYM.
 
 * **N. Arkani-Hamed, J. Trnka (2014)**
   *Into the Amplituhedron*
   [https://arxiv.org/abs/1312.7878](https://arxiv.org/abs/1312.7878)
-  Develops geometric and combinatorial aspects of the amplituhedron construction.
 
 ---
 
@@ -257,58 +295,58 @@ This project is inspired by the development of **positive geometry**, the **ampl
 * **A. Postnikov (2006)**
   *Total Positivity, Grassmannians, and Networks*
   [https://arxiv.org/abs/math/0609764](https://arxiv.org/abs/math/0609764)
-  Introduces plabic graphs and the combinatorial structure of the positive Grassmannian.
 
 * **N. Arkani-Hamed et al. (2016)**
   *Scattering Amplitudes and the Positive Grassmannian*
   [https://arxiv.org/abs/1212.5605](https://arxiv.org/abs/1212.5605)
-  Establishes the deep connection between scattering amplitudes and positive geometry.
 
 ---
 
 ## 🔷 Associahedron & ABHY Construction
 
 * **N. Arkani-Hamed, Y. Bai, S. He, G. Yan (2017)**
-  *Scattering Forms and the Positive Geometry of Kinematics*
+  *Scattering Forms and the Positive Geometry of Kinematics, Color and the Worldsheet*
   [https://arxiv.org/abs/1711.09102](https://arxiv.org/abs/1711.09102)
-  Introduces the kinematic associahedron (ABHY construction) and identifies tree-level scalar amplitudes as canonical forms of a polytope in kinematic space.
 
 * **N. Arkani-Hamed, Y. Bai, S. He (2017)**
   *The All-Loop Integrand for Scattering Amplitudes in Planar N=4 SYM*
-  [https://arxiv.org/abs/1703.04541](https://arxiv.org/abs/1703.04541)
+  [https://arxiv.org/abs/1008.2958](https://arxiv.org/abs/1008.2958)
   Explores recursive and geometric structures underlying amplitude factorization.
 
 ---
 
-## 🔷 Canonical Forms & Positive Geometry (General Framework)
+## 🔷 Canonical Forms & Positive Geometry
 
 * **N. Arkani-Hamed, Y. Bai, T. Lam (2017)**
   *Positive Geometries and Canonical Forms*
   [https://arxiv.org/abs/1703.04541](https://arxiv.org/abs/1703.04541)
-  Formalizes the notion of positive geometries and their canonical differential forms.
 
 * **SAGEX Review (2022)**
   *Scattering Amplitudes and Positive Geometry*
   [https://arxiv.org/abs/2203.13018](https://arxiv.org/abs/2203.13018)
-  Comprehensive review of positive geometry, amplituhedron, associahedron, and canonical forms.
 
 ---
 
-## 🔷 Origami Connection & Momentum Amplituhedron
+## 🔷 Origami & Momentum Amplituhedron
 
 * **P. Galashin (2024)**
-  *Origami and the Momentum Amplituhedron*
-  (arXiv link — October 2024 preprint)
-  Establishes a correspondence between origami crease patterns and regions of the momentum amplituhedron, resolving the triangulation conjecture.
+  *Amplituhedra and origami*
+  [https://arxiv.org/abs/2410.09574](https://arxiv.org/abs/2410.09574)
 
 * **Kevin Hartnett (2025)**
   *Origami Patterns Solve a Major Physics Riddle*
-  Quanta Magazine
   [https://www.quantamagazine.org/origami-patterns-solve-a-major-physics-riddle-20251006/](https://www.quantamagazine.org/origami-patterns-solve-a-major-physics-riddle-20251006/)
-  Accessible overview of the origami–amplituhedron connection.
 
----
+* **Jordana Cepelewicz (2024)**
+  *How to Build an Origami Computer* (NOTE: This seems highly relevant, )
+  [https://www.quantamagazine.org/how-to-build-an-origami-computer-20240130/](https://www.quantamagazine.org/how-to-build-an-origami-computer-20240130/)
+  
+## 🔷 Others
 
+* **Chaim Even-Zohar, Tsviqa Lakrec, Ran J. Tessler(2025)**
+  *The Amplituhedron BCFW Triangulation*
+  [https://arxiv.org/abs/2112.02703](https://arxiv.org/abs/2112.02703)
+  
 ## 🔷 Scattering Amplitude Methods (Pre-Amplituhedron Foundations)
 
 * **Britto, Cachazo, Feng, Witten (2005)**
@@ -320,28 +358,34 @@ This project is inspired by the development of **positive geometry**, the **ampl
   *An Amplitude for n Gluon Scattering*
   [https://doi.org/10.1103/PhysRevLett.56.2459](https://doi.org/10.1103/PhysRevLett.56.2459)
   Early indication that scattering amplitudes admit unexpectedly simple closed forms.
-
+  
+* **Sugimoto, Teruhisa (2025)**
+  *Convex pentagonal monotiles in the 15 Type families*
+  [https://arxiv.org/abs/2501.07090v1](https://arxiv.org/abs/2501.07090v1)
+  
+* **Wolchover, Natalie (2017)**
+  *Pentagon Tiling Proof Solves Century-Old Math Problem*
+  [https://www.quantamagazine.org/pentagon-tiling-proof-solves-century-old-math-problem-20170711/](https://www.quantamagazine.org/pentagon-tiling-proof-solves-century-old-math-problem-20170711/)
 ---
 
-## 🔷 Conceptual & Popular Expositions
-
-* **Kevin Hartnett (2013)**
-  *A Jewel at the Heart of Quantum Physics*
-  Quanta Magazine
-  [https://www.quantamagazine.org/a-jewel-at-the-heart-of-quantum-physics-20130917/](https://www.quantamagazine.org/a-jewel-at-the-heart-of-quantum-physics-20130917/)
-  Introduced the amplituhedron to a broad scientific audience.
-
-* **N. Arkani-Hamed (various lectures)**
-  IAS and public lecture series on amplitudes and positive geometry.
-  (Many available on YouTube and IAS lecture archives.)
-
----
-
-# 🧭 Conceptual Themes This Project Builds On
+# 🧭 Conceptual Themes
 
 * Geometry replaces diagrammatic enumeration
-* Canonical forms are uniquely determined by boundary structure
+* Canonical forms are fixed by boundary structure
 * Positivity encodes physical consistency
 * Factorization corresponds to geometric boundaries
 * Combinatorics ↔ geometry ↔ physics equivalence
 * Constraint-defined systems over rule-defined systems
+
+---
+
+## Summary
+
+`posgeo` encodes canonical-form axioms as executable symbolic invariants and validates them in a nontrivial 2D example.
+
+The current focus (v0.1) is structural validation.
+
+Future milestones strengthen singularity enforcement and enable boundary-driven construction.
+
+Validation precedes automation.
+
