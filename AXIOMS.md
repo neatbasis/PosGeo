@@ -439,3 +439,153 @@ The engine’s role:
 Construction methods are secondary.
 
 Constraint satisfaction is primary.
+
+
+# IX. Formal Falsifiability Conditions (v0.2)
+
+This section specifies **precise failure modes** for the scoped theorems and enforcement guarantees.
+
+A statement is meaningful only if there exists a concrete condition under which it would be declared false.
+
+---
+
+## F1 — Log-Purity Failure
+
+**Invalidates:** T-A4, T1
+
+A candidate form fails canonical log-purity if any of the following occur:
+
+1. A pole of order ≥ 2 is detected along any codimension-1 facet.
+2. Under restriction to a codimension-2 stratum (vertex in 2D), iterated residue or local coordinate expansion reveals higher-order behavior.
+3. A singularity is detected away from true boundary components.
+
+Detection of any of these constitutes a formal falsification of canonical log structure within scope.
+
+---
+
+## F2 — Residue Mismatch
+
+**Invalidates:** T-A5, T1, T3
+
+For any facet (F):
+
+[
+\operatorname{Res}_F \Omega \neq \Omega(F)
+]
+
+where (\Omega(F)) is the canonical boundary form (up to orientation).
+
+Residue mismatch at any boundary stratum falsifies recursive correctness.
+
+---
+
+## F3 — Spurious Pole Persistence
+
+**Invalidates:** T-A6, S-C2, T2
+
+After complete symbolic simplification of the final form:
+
+* Any remaining pole not corresponding to a true geometric boundary component constitutes failure.
+* Pairwise cancellation is not required; global cancellation is required.
+
+Presence of a surviving spurious pole falsifies canonical validity.
+
+---
+
+## F4 — Orientation Inconsistency
+
+**Invalidates:** O1, O2, O3, T3
+
+If:
+
+* Reversing global orientation does not flip the sign of (\Omega),
+* Residue signs do not match induced boundary orientation,
+* Parity changes alter more than global sign,
+
+then orientation structure is violated.
+
+---
+
+## F5 — Triangulation Non-Confluence
+
+**Invalidates:** T2 (Scoped)
+
+Given two valid triangulations of the same convex polygon:
+
+[
+\sum \Omega(\text{subregion}_1) \neq \sum \Omega(\text{subregion}_2)
+]
+
+after symbolic simplification.
+
+This falsifies triangulation independence within scope.
+
+Note:
+Triangulation is a regression oracle.
+Failure here signals violation of canonical-form constraints or implementation error.
+
+---
+
+## F6 — Uniqueness Breakdown (Scoped Assumption Failure)
+
+**Invalidates:** T-A7 (within v0.2)
+
+If two distinct rational top-forms satisfy:
+
+* Log-purity,
+* Correct residues,
+* Boundary-only poles,
+
+and differ by more than a global orientation sign,
+
+then one of the following is true:
+
+* Ambient uniqueness hypothesis fails,
+* Scope assumptions were violated,
+* Implementation logic is incomplete.
+
+This event triggers re-evaluation of ambient assumptions.
+
+---
+
+## F7 — Rationality Violation
+
+**Invalidates:** T-A3 (Scoped Domain)
+
+If canonical data require:
+
+* Branch cuts,
+* Non-rational singularities,
+* Essential singularities,
+
+then the object lies outside rational positive-geometry scope.
+
+This is a domain-exit condition, not a computational failure.
+
+---
+
+## F8 — Drift Trigger: Non-Logarithmic Regime
+
+If a candidate form:
+
+* Has legitimate boundary singularities of order > 1,
+* Or exhibits order-lowering but non-canceling spurious poles,
+
+then the system has entered a non-logarithmic regime.
+
+This does not falsify mathematics,
+but invalidates applicability of the canonical log-geometry contract.
+
+Invariant set must be versioned before proceeding.
+
+---
+
+# X. Meta-Guarantee
+
+Within declared scope (convex affine 2D rational polygons):
+
+If none of F1–F8 occur,
+then the engine certifies the candidate form as canonical up to orientation.
+
+Certification is scoped, not universal.
+
