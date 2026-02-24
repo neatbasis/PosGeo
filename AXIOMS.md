@@ -2,24 +2,19 @@
 
 ## Canonical Forms of Positive Geometries
 
-### Theory–to–Engine Bridge (v0.1, Literature-Aligned)
+### Theory–to–Engine Bridge (v0.2, Literature-Governed)
 
 ---
 
 # 0. Purpose of This Document
 
-This document records:
+This document specifies the **definition-level mathematical constraints** governing canonical forms of positive geometries and the corresponding **engine-level enforcement strategy** for the convex affine 2D domain implemented in this repository.
 
-1. **Theoretical axioms** assumed from positive geometry theory.
-2. **Derived structural consequences** used operationally.
-3. **Executable invariants** enforced in the engine.
-4. **Theorem–dependency structure** clarifying logical flow.
-5. **Design implications** linking axioms to architecture.
-6. **Scope boundaries** defining v0.1 limits.
+This repository:
 
-This repository does **not** reprove positive geometry theory.
-
-It operationalizes selected properties in the **convex 2D affine case** and builds an engine that enforces them symbolically.
+* Does **not** reprove positive geometry theory.
+* Does **not** claim universality.
+* Implements a scoped, executable validator for canonical-form constraints in convex affine 2D polygons.
 
 Primary reference:
 
@@ -27,25 +22,42 @@ Arkani-Hamed, Bai, Lam (2017) — *Positive Geometries and Canonical Forms*
 
 ---
 
-# I. Theoretical Axioms (Assumed from Literature)
+# 0.1 Epistemic Classification
 
-These axioms reflect the definitional framework of positive geometries.
+Every statement below is classified as:
+
+* **D — Definition:** Part of the ABL definitional framework.
+* **Th — Theorem (Scoped):** Proven under stated hypotheses.
+* **A — Assumption (v0.2 Scope):** Assumed true within this repository’s domain.
+* **E — Engineering Constraint:** Enforced by implementation.
+* **R — Regression Oracle:** Used for falsification, not definitional grounding.
+* **Drift Trigger:** Expands beyond canonical log-regime.
+
+---
+
+# I. Definitional Framework (ABL-Aligned)
 
 ---
 
 ## T-A1 — Positive Geometry Structure
 
+**Status: D**
+
 A pair ((X, X_{\ge 0})) consists of:
 
+* A complex projective variety (X),
 * A real semi-algebraic subset (X_{\ge 0}),
-* Embedded in a complex projective variety (X),
-* With a stratified boundary decomposition into algebraic hypersurfaces.
+* A stratified boundary decomposition into algebraic hypersurfaces.
 
-A semi-algebraic set is called a **positive geometry** only if it satisfies the canonical-form properties below.
+Only those pairs satisfying the canonical-form conditions below qualify as (rational) positive geometries.
+
+This is a **definitional filter**, not a theorem about arbitrary semi-algebraic sets.
 
 ---
 
 ## T-A2 — Stratified Boundary Recursion
+
+**Status: D**
 
 The boundary decomposes into finitely many strata:
 
@@ -54,24 +66,28 @@ The boundary decomposes into finitely many strata:
 * …
 * Zero-dimensional vertices.
 
-Each boundary stratum is itself a positive geometry (or empty).
+Each boundary stratum must itself be a positive geometry (or empty).
 
-The recursive structure terminates in dimension zero.
+The recursion terminates in dimension zero.
 
 ---
 
-## T-A3 — Existence of Canonical Form (Definitional)
+## T-A3 — Existence of Canonical Form
 
-A pair ((X, X_{\ge 0})) is a positive geometry if there exists a rational top-degree differential form (\Omega(X_{\ge 0})) satisfying T-A4–T-A6.
+**Status: D**
 
-Existence is part of the definition of a positive geometry.
+A pair is a positive geometry if there exists a **nonzero rational top-degree differential form** satisfying T-A4–T-A6.
+
+Existence is definitional.
 It is not guaranteed for arbitrary semi-algebraic sets.
 
 ---
 
 ## T-A4 — Logarithmic Singularity Condition
 
-The canonical form has only simple logarithmic poles along boundary components.
+**Status: D**
+
+The canonical form has only **simple poles** along boundary components.
 
 Locally near a facet defined by (f = 0):
 
@@ -88,9 +104,24 @@ Higher-order poles are forbidden.
 
 ---
 
+### Operational Corollary (2D Scope)
+
+**Status: E (enforced)**
+
+Log-purity must hold **recursively under restriction**:
+
+* Codimension-1 (facets): simple pole only.
+* Codimension-2 (vertices): no hidden higher-order behavior under iterated residue / local coordinate restriction.
+
+A form that passes facet-level checks but develops higher-order poles at intersections **fails canonical log-purity**.
+
+---
+
 ## T-A5 — Recursive Residue Property
 
-For every facet (F):
+**Status: D**
+
+For each facet (F):
 
 [
 \operatorname{Res}*F \Omega(X*{\ge 0}) = \Omega(F)
@@ -102,57 +133,75 @@ The canonical form is defined recursively via boundary restriction.
 
 ## T-A6 — Boundary-Only Poles (Final Form)
 
-The canonical form may have poles only along true geometric boundary components.
+**Status: D**
 
-Intermediate constructions (e.g., triangulations) may contain spurious poles,
-but these must cancel in the final total form.
+The final canonical form may have poles **only on true geometric boundary components**.
+
+Intermediate constructions (e.g., triangulations) may introduce spurious poles, but:
+
+> Spurious-pole cancellation is a **global identity**.
+> It is not required (and generally not expected) to occur pairwise.
 
 ---
 
 ## T-A7 — Uniqueness up to Orientation (Scoped)
 
+**Status: Th (under hypothesis) + A (v0.2)**
+
 If two rational top-forms satisfy:
 
-* Logarithmic singularity condition (T-A4),
-* Recursive residue property (T-A5),
-* Boundary-only poles (T-A6),
+* T-A4 (log-purity),
+* T-A5 (recursive residues),
+* T-A6 (boundary-only poles),
 
-then their difference is holomorphic.
+then their difference has no residues and is therefore holomorphic.
 
-In the affine rational convex 2D setting considered here:
+Uniqueness follows under the hypothesis:
 
-* The ambient affine space admits no nonzero holomorphic top-forms compatible with the boundary divisor.
-* Therefore, the canonical form is unique up to global orientation sign.
+[
+H^0(X, K_X) = 0
+]
 
-This uniqueness depends on:
+(i.e., no nonzero holomorphic top forms on (X)).
 
-* Rationality,
-* Absence of interior singularities,
-* Ambient space assumptions.
+---
+
+### v0.2 Assumption
+
+Within the convex affine 2D rational polygon model:
+
+* The ambient model is treated as satisfying the no-holomorphic-obstruction condition.
+* Therefore uniqueness holds up to global orientation.
+
+This is a **scoped assumption**, not a universal theorem.
 
 ---
 
 ## T-A8 — Top-Degree Condition
 
-The canonical form is of degree equal to (\dim(X)).
+**Status: D**
+
+The canonical form has degree equal to (\dim(X)).
 
 ---
 
-# II. Orientation Axioms
-
-Orientation is structural, not cosmetic.
+# II. Orientation Structure
 
 ---
 
 ## O1 — Global Orientation Dependence
 
-Reversing the orientation of (X_{\ge 0}) multiplies (\Omega) by −1.
+**Status: D**
+
+Reversing orientation multiplies (\Omega) by −1.
 
 ---
 
 ## O2 — Boundary Orientation Inheritance
 
-Facet orientations are induced via the boundary operator.
+**Status: D**
+
+Facet orientations are induced by the boundary operator.
 
 Residue signs must respect induced orientation.
 
@@ -160,121 +209,144 @@ Residue signs must respect induced orientation.
 
 ## O3 — Parity Consistency
 
-If vertex ordering changes parity, (\Omega) changes sign globally but retains identical recursive structure.
+**Status: D**
+
+Parity changes in vertex ordering change the global sign only.
 
 ---
 
-# III. Structural Consequences (Derived in Convex 2D Case)
+# III. Structural Consequences (Convex 2D Scope)
 
 ---
 
 ## S-C1 — Finite Pole Set
 
-From T-A1 and T-A2:
+**Status: Derived (Th within scope)**
 
-Only finitely many codimension-1 facets exist.
-
-Therefore the canonical form has finitely many poles.
+From finite boundary decomposition, pole set is finite.
 
 ---
 
-## S-C2 — No Spurious Poles (Final Form)
+## S-C2 — No Spurious Poles in Final Form
 
-From T-A4 and T-A6:
+**Status: D + E**
 
-All poles in the final canonical form correspond to true boundary components.
+Final canonical form contains poles only on true boundary components.
+
+Spurious poles in intermediate constructions must vanish in final expression.
 
 ---
 
 ## S-C3 — Triangulation Independence (Scoped)
 
-In classes where positive triangulations exist (e.g., convex polytopes):
+**Status: Th (in ABL framework) + R (engine use)**
 
-If the canonical form is computed as
+If:
 
 [
 \Omega = \sum \Omega(\text{subregion})
 ]
 
-then the result is independent of triangulation.
+over a valid triangulation, then result is independent of triangulation.
 
-Triangulation is a computational tool, not part of the definition.
+In this repository:
+
+* Triangulation is used as a **regression oracle**.
+* It is not part of the definition of the canonical form.
 
 ---
 
 ## S-C4 — Deterministic Orientation Signs
 
-Once global orientation is fixed, all residue signs are uniquely determined.
+**Status: Derived**
+
+Residue signs are uniquely determined once global orientation is fixed.
 
 ---
 
-# IV. 2D Convex Polytope Specialization (v0.1 Domain)
+# IV. 2D Convex Polytope Specialization (v0.2 Domain)
 
-Applies only to convex polygons in affine 2D with linear facets.
+Applies only to bounded convex polygons with linear facets in affine (\mathbb{R}^2).
 
 ---
 
-## P-1 — Rational Representation Structure
+## P-1 — Expected Rational Normal Form (Target Representation)
 
-For linear facet equations (L_i(x,y)=0):
+**Status: Engineering target, not definitional**
+
+Canonical forms are expected to admit representation:
 
 [
 \Omega = \frac{P(x,y)}{\prod_i L_i(x,y)}, dx \wedge dy
 ]
 
+where (L_i=0) define facets.
+
+Equivalent representations may appear as sums with cancellations.
+
+This is a **normal-form target for testing**, not a required axiom.
+
 ---
 
 ## P-2 — Numerator Cancellation Requirement
 
-The numerator must cancel all potential poles not corresponding to true boundary components.
+**Status: E**
+
+Numerator must eliminate all non-boundary poles, including hidden poles revealed under stratified restriction.
 
 ---
 
 ## P-3 — Residue Dimension Reduction
 
+**Status: D (instantiated)**
+
 Facet residues produce canonical 1-forms on boundary intervals.
 
----
-
-## P-4 — Boundary Reconstruction Principle (Conditional)
-
-For convex 2D polytopes:
-
-Boundary equations together with recursive residue constraints determine the canonical form uniquely up to orientation, provided:
-
-* Existence is assumed,
-* Rationality holds,
-* Ambient holomorphic obstructions are absent.
-
-This is a scoped computational principle, not a universal theorem.
+Vertex residues produce ±1 (orientation).
 
 ---
 
-# V. Computational Axioms (Executable Constraints)
+## P-4 — Boundary Reconstruction Principle (Scoped)
 
-These are engineering constraints.
+**Status: Th (scoped)**
+
+In convex affine 2D polygons:
+
+A rational top-form satisfying:
+
+* Simple poles on facets,
+* Correct recursive residues,
+* No spurious poles,
+
+equals the canonical form up to orientation,
+
+provided existence and uniqueness hypotheses hold.
+
+This is not claimed beyond the v0.2 domain.
+
+---
+
+# V. Computational Enforcement Layer
 
 ---
 
 ## E1 — Exact Rational Arithmetic
 
-All validation must use exact rational arithmetic.
-
-Floating-point approximations invalidate invariant verification.
+Floating-point arithmetic is forbidden in invariant verification.
 
 ---
 
-## E2 — Invariant Gate
+## E2 — Invariant Gate (SingularityGate)
 
-A candidate canonical form must satisfy:
+A candidate form must satisfy:
 
 1. Top-degree condition
-2. Simple logarithmic poles (within enforcement limits)
-3. Correct recursive residues
-4. No spurious poles in final form
+2. Log-purity (facet + vertex-level enforcement)
+3. Recursive residue correctness
+4. Boundary-only poles (global confluence check)
 5. Orientation consistency
 
-Failure invalidates the form within declared scope.
+Failure invalidates the form within scope.
 
 ---
 
@@ -283,101 +355,87 @@ Failure invalidates the form within declared scope.
 Residue computation must be:
 
 * Deterministic,
-* Chart-independent (within affine domain),
+* Chart-consistent,
 * Orientation-aware.
 
 ---
 
-## E4 — Triangulation as Test Instrument
+## E4 — Triangulation as Regression Oracle
 
-Triangulation may generate candidate forms.
-
-Axioms validate them.
+Multiple construction paths must agree.
 
 Construction ≠ definition.
 
 ---
 
-# VI. Theorem–Dependency Structure
+# VI. Theorem–Dependency Structure (Scoped)
 
 ---
 
-## T1 — Canonical Form Determination (Scoped)
-
-In the convex affine 2D case:
-
-A rational top-form satisfying:
-
-* Simple poles on true facets,
-* Correct recursive residues,
-* No spurious poles,
-
-equals the canonical form up to orientation.
+## T1 — Canonical Form Determination (2D Scope)
 
 Depends on:
 
-T-A4, T-A5, T-A6, T-A7.
+* T-A4
+* T-A5
+* T-A6
+* T-A7
 
 ---
 
-## T2 — Triangulation Independence (Scoped)
-
-In triangulable convex classes:
-
-[
-\sum \Omega(\text{subregion})
-]
-
-is independent of triangulation.
+## T2 — Triangulation Confluence (Scoped)
 
 Depends on:
 
-T-A5, T-A7.
+* T-A5
+* T-A7
+
+Used as regression oracle.
 
 ---
 
 ## T3 — Orientation Consistency
 
-Once global orientation is fixed, residue signs are determined.
-
 Depends on:
 
-O1, O2, T-A5.
+* O1
+* O2
+* T-A5
 
 ---
 
-# VII. Explicit Limitations (v0.1)
+# VII. Explicit Limitations (v0.2)
 
-This repository does not treat:
+Not treated:
 
 * Projective infinity boundary components
 * Unbounded regions
-* Nonlinear boundary hypersurfaces
-* Non-logarithmic singularities
-* Covariant forms
-* Higher-dimensional positive geometries
-* Amplituhedron canonical forms
+* Nonlinear boundaries
+* Higher dimensions
 * Grassmannian geometries
-* General constructive existence proofs
+* Amplituhedron canonical forms
+* Pushforward generality proofs
+* Non-logarithmic regimes (covariant forms/pairings)
+* Pseudo-positive/null geometries ((\Omega \equiv 0))
 
-All claims are restricted to convex affine 2D polygons.
+Admitting non-log singularities is a **Drift Trigger**:
+spurious cancellation semantics must be redefined.
 
 ---
 
 # VIII. Strategic Principle
 
-The canonical form is defined by constraints:
+Canonical form = constraints:
 
-* Logarithmic singularities,
-* Recursive residues,
-* Boundary-only poles,
-* Orientation structure.
+* Log-purity (stratified)
+* Recursive residues
+* Boundary-only poles
+* Orientation coherence
 
-The computational problem is:
+The engine’s role:
 
-> Construct a form satisfying these constraints.
+> Validate constraint satisfaction within declared scope.
 
-The engine enforces them within scope.
+Construction methods are secondary.
 
-Construction mechanisms are secondary to constraint validation.
-
+Constraint satisfaction is primary.
