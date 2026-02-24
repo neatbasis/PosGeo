@@ -1,0 +1,1 @@
+from .canonical2d import canonical_form_from_triangulation
