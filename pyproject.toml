@@ -8,3 +8,4 @@ dependencies = ["sympy>=1.12", "pytest>=8.0"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+pythonpath = ["."]
