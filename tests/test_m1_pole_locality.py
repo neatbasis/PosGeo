@@ -2,7 +2,8 @@
 
 from posgeo.geometry.region2d import PentagonM1Region
 from posgeo.forms.canonical2d import canonical_form_from_triangulation, triangulation_A_m1
-from tests.helpers.pole_checks import assert_boundary_pole_invariant
+from posgeo.forms.residues2d import m1_facet_charts_all
+from posgeo.validation import assert_log_pure
 
 
 def test_only_boundary_poles_in_final_form():
@@ -12,10 +13,4 @@ def test_only_boundary_poles_in_final_form():
     omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
 
     # Expect: final form has poles only on boundary lines (internal triangulation poles cancel).
-    assert_boundary_pole_invariant(
-        omega.prefactor,
-        [f.expr for f in region.facets.values()],
-        x,
-        y,
-        require_simple_poles=True,
-    )
+    assert_log_pure(omega, region, m1_facet_charts_all(x, y))
