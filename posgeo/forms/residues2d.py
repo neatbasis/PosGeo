@@ -1,11 +1,11 @@
-# posgeo/forms/residues2d.py
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Tuple, List, Dict
+from typing import Dict, Iterable, List, Tuple
 
 import sympy as sp
 
+from posgeo.geometry.region2d import Region2D
 from posgeo.typing import Canonical1Form, Canonical2Form
 
 
@@ -21,6 +21,7 @@ class FacetChart:
       g(t) = s * lim_{u->0} (u * f(x(u,t),y(u,t)))
     producing omega = g(t) dt
     """
+
     name: str
     u: sp.Symbol
     t: sp.Symbol
@@ -31,11 +32,11 @@ class FacetChart:
 
 def residue_2form_on_facet(form: Canonical2Form, chart: FacetChart) -> Canonical1Form:
     x, y = form.x, form.y
-    u, t = chart.u, chart.t
+    u = chart.u
 
     f_ut = sp.simplify(form.prefactor.subs({x: chart.x_of, y: chart.y_of}))
     g = sp.simplify(chart.s * sp.limit(u * f_ut, u, 0))
-    return Canonical1Form(t, sp.simplify(g))
+    return Canonical1Form(chart.t, sp.simplify(g))
 
 
 def pullback_1form(form: Canonical1Form, t_new: sp.Symbol, t_old_expr: sp.Expr) -> Canonical1Form:
@@ -47,246 +48,48 @@ def pullback_1form(form: Canonical1Form, t_new: sp.Symbol, t_old_expr: sp.Expr) 
     return Canonical1Form(t_new, sp.simplify(g_new))
 
 
-def m1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart]]:
-    """
-    Provide multiple charts per facet for chart-independence testing.
+def _make_facet_charts(
+    defs: Dict[str, List[Tuple[str, sp.Expr, sp.Expr, int]]],
+) -> Dict[str, List[FacetChart]]:
+    """Build facet charts from `(name, x_of, y_of, s)` definitions."""
 
-    IMPORTANT: each chart must have its own (u,t) symbols, otherwise SymPy will
-    conflate parameters across charts.
-    """
-    def ut(name: str) -> tuple[sp.Symbol, sp.Symbol]:
-        u = sp.Symbol(f"u__{name}", real=True)
-        t = sp.Symbol(f"t__{name}", real=True)
-        return u, t
+    def ut(name: str) -> Tuple[sp.Symbol, sp.Symbol]:
+        return (
+            sp.Symbol(f"u__{name}", real=True),
+            sp.Symbol(f"t__{name}", real=True),
+        )
 
     charts: Dict[str, List[FacetChart]] = {}
-
-    # L1: x=0
-    u0, t0 = ut("L1_x__t=y")
-    u1, t1 = ut("L1_x__t=1-y")
-    charts["L1_x"] = [
-        FacetChart(name="L1_x__t=y", u=u0, t=t0, x_of=u0, y_of=t0, s=sp.Integer(1)),
-        FacetChart(name="L1_x__t=1-y", u=u1, t=t1, x_of=u1, y_of=1 - t1, s=sp.Integer(-1)),
-    ]
-
-    # L2: y=0
-    u0, t0 = ut("L2_y__t=x")
-    u1, t1 = ut("L2_y__t=1-x")
-    charts["L2_y"] = [
-        FacetChart(name="L2_y__t=x", u=u0, t=t0, x_of=t0, y_of=u0, s=sp.Integer(-1)),
-        FacetChart(name="L2_y__t=1-x", u=u1, t=t1, x_of=1 - t1, y_of=u1, s=sp.Integer(1)),
-    ]
-
-    # L3: x=1
-    u0, t0 = ut("L3_1mx__t=y")
-    u1, t1 = ut("L3_1mx__t=1-y")
-    charts["L3_1mx"] = [
-        FacetChart(name="L3_1mx__t=y", u=u0, t=t0, x_of=1 - u0, y_of=t0, s=sp.Integer(-1)),
-        FacetChart(name="L3_1mx__t=1-y", u=u1, t=t1, x_of=1 - u1, y_of=1 - t1, s=sp.Integer(1)),
-    ]
-
-    # L4: y=1
-    u0, t0 = ut("L4_1my__t=x")
-    u1, t1 = ut("L4_1my__t=1-x")
-    charts["L4_1my"] = [
-        FacetChart(name="L4_1my__t=x", u=u0, t=t0, x_of=t0, y_of=1 - u0, s=sp.Integer(1)),
-        FacetChart(name="L4_1my__t=1-x", u=u1, t=t1, x_of=1 - t1, y_of=1 - u1, s=sp.Integer(-1)),
-    ]
-
-    # L5: x+y=1/2
-    u0, t0 = ut("L5__t=x")
-    u1, t1 = ut("L5__t=y")
-    charts["L5_xpy_mhalf"] = [
-        FacetChart(
-            name="L5__t=x",
-            u=u0,
-            t=t0,
-            x_of=t0,
-            y_of=sp.Rational(1, 2) - t0 + u0,
-            s=sp.Integer(-1),
-        ),
-        FacetChart(
-            name="L5__t=y",
-            u=u1,
-            t=t1,
-            x_of=sp.Rational(1, 2) - t1 + u1,
-            y_of=t1,
-            s=sp.Integer(1),
-        ),
-    ]
-
-    assert isinstance(charts, dict)
+    for facet_name, facet_defs in defs.items():
+        charts[facet_name] = []
+        for chart_name, x_builder, y_builder, sign in facet_defs:
+            u, t = ut(chart_name)
+            charts[facet_name].append(
+                FacetChart(
+                    name=chart_name,
+                    u=u,
+                    t=t,
+                    x_of=sp.simplify(x_builder.subs({sp.Symbol("u"): u, sp.Symbol("t"): t})),
+                    y_of=sp.simplify(y_builder.subs({sp.Symbol("u"): u, sp.Symbol("t"): t})),
+                    s=sp.Integer(sign),
+                )
+            )
     return charts
-    
-def expected_interval_prefactor_for_m1_facet(facet_name: str, t: sp.Symbol) -> sp.Expr:
-    """
-    Expected canonical 1-form on each boundary segment (interval) in parameter t.
-    Interval (a,b): prefactor = 1/(t-a) + 1/(b-t)
-    """
-    if facet_name == "L1_x":  # x=0, y in [1/2,1]
-        a, b = sp.Rational(1, 2), sp.Rational(1)
-    elif facet_name == "L2_y":  # y=0, x in [1/2,1]
-        a, b = sp.Rational(1, 2), sp.Rational(1)
-    elif facet_name == "L3_1mx":  # x=1, y in [0,1]
-        a, b = sp.Rational(0), sp.Rational(1)
-    elif facet_name == "L4_1my":  # y=1, x in [0,1]
-        a, b = sp.Rational(0), sp.Rational(1)
-    elif facet_name == "L5_xpy_mhalf":  # x+y=1/2, x in [0,1/2] (equivalently y in [0,1/2])
-        a, b = sp.Rational(0), sp.Rational(1, 2)
-    else:
-        raise KeyError(f"Unknown facet: {facet_name}")
 
-    return sp.simplify(1 / (t - a) + 1 / (b - t))
-    
-def interval_endpoints_from_chart(
-    facet_name: str,
-    chart: FacetChart,
-    vertices: list[tuple[sp.Rational, sp.Rational]],
-) -> tuple[sp.Rational, sp.Rational]:
-    """
-    Determine the interval endpoints in the chart parameter t by evaluating t at the
-    two polygon vertices that lie on the given facet (u=0 boundary).
 
-    We identify facet membership by checking the facet equation == 0 at the vertex.
-    For M1 facets, we can infer the facet equation from the chart by eliminating u:
-      on facet: u=0, so the facet is defined by the condition chart.u == 0 in that chart.
-    But we already know which facet, so use the original M1 facet definitions implicitly
-    via the known five equations.
-    """
-    x, y = chart.x_of.free_symbols, chart.y_of.free_symbols  # not used
-    # We'll just hardcode the M1 facet equations here (for M1 only):
-    X, Y = sp.symbols("x y", real=True)
-
-    facet_eqs = {
-        "L1_x": X,
-        "L2_y": Y,
-        "L3_1mx": 1 - X,
-        "L4_1my": 1 - Y,
-        "L5_xpy_mhalf": X + Y - sp.Rational(1, 2),
-    }
-    if facet_name not in facet_eqs:
-        raise KeyError(f"Unknown facet: {facet_name}")
-
-    eq = sp.simplify(facet_eqs[facet_name])
-
-    on_facet = []
-    for (vx, vy) in vertices:
-        if sp.simplify(eq.subs({X: vx, Y: vy})) == 0:
-            on_facet.append((vx, vy))
-
-    if len(on_facet) != 2:
-        raise ValueError(f"Expected 2 vertices on facet {facet_name}, got {len(on_facet)}: {on_facet}")
-
-    # Evaluate chart.t at those vertices, using u=0 chart inversion:
-    # We need t for each vertex. For our M1 charts, x_of(u,t), y_of(u,t) are simple enough
-    # that we can solve for t by substituting u=0 and matching either x or y.
-    u = chart.u
-    t = chart.t
-
+def _solve_chart_t_at_vertex(chart: FacetChart, vx: sp.Rational, vy: sp.Rational) -> sp.Expr:
+    """Solve for chart.t at boundary point (vx, vy) on u=0."""
+    u, t = chart.u, chart.t
     x0 = sp.simplify(chart.x_of.subs({u: 0}))
     y0 = sp.simplify(chart.y_of.subs({u: 0}))
 
-    tvals = []
-    for (vx, vy) in on_facet:
-        sol = sp.solve(sp.Eq(x0, vx), t, dict=True)
-        if not sol:
-            sol = sp.solve(sp.Eq(y0, vy), t, dict=True)
-        if not sol:
-            raise ValueError(f"Could not solve for t on facet {facet_name} at vertex {(vx,vy)} in chart {chart.name}")
-        tvals.append(sp.simplify(sol[0][t]))
-
-    a, b = tvals[0], tvals[1]
-    return (sp.Min(a, b), sp.Max(a, b))
-    
-def expected_interval_prefactor_from_chart(
-    facet_name: str,
-    chart: FacetChart,
-    vertices: list[tuple[sp.Rational, sp.Rational]],
-) -> sp.Expr:
-    a, b = interval_endpoints_from_chart(facet_name, chart, vertices)
-    t = chart.t
-    return sp.simplify(1/(t - a) + 1/(b - t))
-    
-
-# --- M1 facet equations (for identifying which vertices lie on which facet) ---
-def _m1_facet_eqs(X: sp.Symbol, Y: sp.Symbol) -> Dict[str, sp.Expr]:
-    return {
-        "L1_x": X,
-        "L2_y": Y,
-        "L3_1mx": 1 - X,
-        "L4_1my": 1 - Y,
-        "L5_xpy_mhalf": X + Y - sp.Rational(1, 2),
-    }
-
-
-def _vertices_on_facet_m1(
-    facet_name: str,
-    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
-) -> List[Tuple[sp.Rational, sp.Rational]]:
-    X, Y = sp.symbols("x y", real=True)
-    eqs = _m1_facet_eqs(X, Y)
-    if facet_name not in eqs:
-        raise KeyError(f"Unknown facet: {facet_name}")
-    eq = sp.simplify(eqs[facet_name])
-
-    on = []
-    for vx, vy in verts_ccw:
-        if sp.simplify(eq.subs({X: vx, Y: vy})) == 0:
-            on.append((vx, vy))
-    return on
-
-
-def _oriented_edge_vertices_ccw(
-    facet_name: str,
-    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
-) -> Tuple[Tuple[sp.Rational, sp.Rational], Tuple[sp.Rational, sp.Rational]]:
-    """
-    Return (v_start, v_end) as the CCW-oriented boundary edge lying on this facet.
-    """
-    on = _vertices_on_facet_m1(facet_name, verts_ccw)
-    if len(on) != 2:
-        raise ValueError(f"Expected 2 vertices on facet {facet_name}, got {len(on)}: {on}")
-
-    vA, vB = on
-    idx = {v: i for i, v in enumerate(verts_ccw)}
-    if vA not in idx or vB not in idx:
-        raise ValueError(f"Facet vertices not found in verts_ccw list: {on}")
-
-    iA, iB = idx[vA], idx[vB]
-    n = len(verts_ccw)
-
-    # If vB is the next vertex after vA, the CCW edge is vA -> vB
-    if (iA + 1) % n == iB:
-        return vA, vB
-    # If vA is the next vertex after vB, CCW edge is vB -> vA
-    if (iB + 1) % n == iA:
-        return vB, vA
-
-    raise ValueError(
-        f"Facet {facet_name} vertices are not adjacent in CCW order: {vA} (i={iA}), {vB} (i={iB})"
-    )
-
-
-def _solve_chart_t_at_vertex(chart: "FacetChart", vx: sp.Rational, vy: sp.Rational) -> sp.Expr:
-    """
-    Solve for chart.t at the boundary point (vx, vy) on u=0.
-    We use x(u=0,t) and y(u=0,t) and solve for t.
-    """
-    u = chart.u
-    t = chart.t
-
-    x0 = sp.simplify(chart.x_of.subs({u: 0}))
-    y0 = sp.simplify(chart.y_of.subs({u: 0}))
-
-    # Try x equation first if it contains t; otherwise y equation.
-    candidates = []
-    if t in (x0 - vx).free_symbols:
+    candidates: List[sp.Expr] = []
+    if t in x0.free_symbols:
         candidates.extend(sp.solve(sp.Eq(x0, vx), t))
-    if t in (y0 - vy).free_symbols:
+    if t in y0.free_symbols:
         candidates.extend(sp.solve(sp.Eq(y0, vy), t))
 
-    # Filter candidates that satisfy BOTH x and y
-    good = []
+    good: List[sp.Expr] = []
     for cand in candidates:
         cand = sp.simplify(cand)
         if sp.simplify(x0.subs({t: cand}) - vx) == 0 and sp.simplify(y0.subs({t: cand}) - vy) == 0:
@@ -297,85 +100,218 @@ def _solve_chart_t_at_vertex(chart: "FacetChart", vx: sp.Rational, vy: sp.Ration
             f"Could not solve t at vertex {(vx, vy)} for chart {chart.name}. "
             f"x0={x0}, y0={y0}"
         )
-
-    # Prefer simplest
-    good = sorted(good, key=lambda e: sp.count_ops(e))
-    return sp.simplify(good[0])
+    return sp.simplify(sorted(good, key=lambda e: sp.count_ops(e))[0])
 
 
-def interval_endpoints_from_chart_ccw(
+def facet_vertices_from_region_equations(
+    region: Region2D,
     facet_name: str,
-    chart: "FacetChart",
+    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
+) -> List[Tuple[sp.Rational, sp.Rational]]:
+    """Identify polygon vertices lying on a named facet via region equations."""
+    if facet_name not in region.facets:
+        raise KeyError(f"Unknown facet: {facet_name}")
+
+    eq = sp.simplify(region.facets[facet_name].expr)
+    on = []
+    for vx, vy in verts_ccw:
+        if sp.simplify(eq.subs({region.x: vx, region.y: vy})) == 0:
+            on.append((vx, vy))
+    return on
+
+
+def oriented_edge_vertices_ccw(
+    region: Region2D,
+    facet_name: str,
+    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
+) -> Tuple[Tuple[sp.Rational, sp.Rational], Tuple[sp.Rational, sp.Rational]]:
+    """Return (v_start, v_end) as the CCW boundary edge lying on the named facet."""
+    on = facet_vertices_from_region_equations(region, facet_name, verts_ccw)
+    if len(on) != 2:
+        raise ValueError(f"Expected 2 vertices on facet {facet_name}, got {len(on)}: {on}")
+
+    v_a, v_b = on
+    idx = {v: i for i, v in enumerate(verts_ccw)}
+    i_a, i_b = idx[v_a], idx[v_b]
+    n = len(verts_ccw)
+
+    if (i_a + 1) % n == i_b:
+        return v_a, v_b
+    if (i_b + 1) % n == i_a:
+        return v_b, v_a
+    raise ValueError(f"Facet {facet_name} vertices are not adjacent in CCW order: {on}")
+
+
+def interval_endpoints_from_chart(
+    chart: FacetChart,
+    facet_vertices: Iterable[Tuple[sp.Rational, sp.Rational]],
+) -> Tuple[sp.Expr, sp.Expr]:
+    """Extract unordered endpoint pair `(min_t,max_t)` in chart coordinates for a facet."""
+    tvals = [
+        _solve_chart_t_at_vertex(chart, vx, vy)
+        for vx, vy in facet_vertices
+    ]
+    if len(tvals) != 2:
+        raise ValueError(f"Expected 2 facet vertices, got {len(tvals)}")
+    a, b = tvals
+    return sp.Min(a, b), sp.Max(a, b)
+
+
+def _interval_endpoints_from_chart_ccw_impl(
+    region: Region2D,
+    facet_name: str,
+    chart: FacetChart,
     verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
 ) -> Tuple[sp.Expr, sp.Expr]:
-    """
-    Return (t_start, t_end) for the CCW-oriented boundary edge on this facet,
-    expressed in the chart's parameter t (on u=0).
-    """
-    v_start, v_end = _oriented_edge_vertices_ccw(facet_name, verts_ccw)
+    """Return `(t_start,t_end)` for the CCW-oriented edge on a facet."""
+    v_start, v_end = oriented_edge_vertices_ccw(region, facet_name, verts_ccw)
     ts = _solve_chart_t_at_vertex(chart, *v_start)
     te = _solve_chart_t_at_vertex(chart, *v_end)
     return sp.simplify(ts), sp.simplify(te)
-    
-def _point_inside_region(region, px, py) -> bool:
+
+
+def _point_inside_region(region: Region2D, px: sp.Expr, py: sp.Expr) -> bool:
     subs = {region.x: px, region.y: py}
     for f in region.facets.values():
         val = sp.simplify(f.expr.subs(subs))
-        if val.is_number is not True:
-            raise ValueError(
-                "Facet expression did not simplify to a numeric value after substitution: "
-                f"expr={f.expr}, substituted={val}"
-            )
-
         if val.is_negative is True:
             return False
-
         if (val.is_Rational is True or val.is_Integer is True) and val < 0:
             return False
     return True
 
 
-def _chart_u_points_outward(region, chart: FacetChart, facet_name: str, verts_ccw):
-    """
-    Decide if +u points outward by sampling a boundary point and stepping in +u.
-    Returns +1 if outward, -1 if inward (needs sign flip).
-    """
-    # take CCW-oriented edge endpoints, then midpoint
-    v_start, v_end = _oriented_edge_vertices_ccw(facet_name, verts_ccw)
+def _chart_u_points_outward(
+    region: Region2D,
+    chart: FacetChart,
+    facet_name: str,
+    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
+) -> sp.Integer:
+    v_start, v_end = oriented_edge_vertices_ccw(region, facet_name, verts_ccw)
     mx = (v_start[0] + v_end[0]) / 2
     my = (v_start[1] + v_end[1]) / 2
-
-    # solve t at midpoint on u=0
     t_mid = _solve_chart_t_at_vertex(chart, mx, my)
 
-    # step a little in +u
     eps = sp.Rational(1, 1000)
     x_eps = sp.simplify(chart.x_of.subs({chart.u: eps, chart.t: t_mid}))
     y_eps = sp.simplify(chart.y_of.subs({chart.u: eps, chart.t: t_mid}))
 
     inside = _point_inside_region(region, x_eps, y_eps)
-    # if +u leads inside, then +u is inward, so outward sign is -1
     return sp.Integer(-1) if inside else sp.Integer(1)
 
 
-def expected_interval_prefactor_from_chart_ccw(
-    facet_name: str,
-    chart: "FacetChart",
-    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
+def expected_interval_1form_prefactor(
+    chart: FacetChart,
     *,
-    region=None,
+    endpoint_pair: Tuple[sp.Expr, sp.Expr],
+    orientation_sign: sp.Expr = sp.Integer(1),
 ) -> sp.Expr:
-    """
-    CCW-oriented expected interval prefactor. If region is provided, additionally
-    correct for whether +u is inward or outward for this chart.
-    """
-    a, b = interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw)
-    t = chart.t
-    base = sp.simplify(1 / (t - a) + 1 / (b - t))
+    """Build expected interval 1-form prefactor with optional orientation sign."""
+    a, b = endpoint_pair
+    return sp.simplify(orientation_sign * (1 / (chart.t - a) + 1 / (b - chart.t)))
 
-    if region is None:
-        return base
 
-    # correct sign if chart normal points inward
+def expected_interval_prefactor_from_chart(
+    region: Region2D,
+    facet_name: str,
+    chart: FacetChart,
+    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
+) -> sp.Expr:
+    on_facet = facet_vertices_from_region_equations(region, facet_name, verts_ccw)
+    return expected_interval_1form_prefactor(
+        chart,
+        endpoint_pair=interval_endpoints_from_chart(chart, on_facet),
+    )
+
+
+def expected_interval_prefactor_from_chart_ccw(
+    region: Region2D,
+    facet_name: str,
+    chart: FacetChart,
+    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
+) -> sp.Expr:
+    a, b = _interval_endpoints_from_chart_ccw_impl(region, facet_name, chart, verts_ccw)
     s_norm = _chart_u_points_outward(region, chart, facet_name, verts_ccw)
-    return sp.simplify(s_norm * base)
+    return expected_interval_1form_prefactor(chart, endpoint_pair=(a, b), orientation_sign=s_norm)
+
+
+# -- M1 adapters --
+def m1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart]]:
+    u, t = sp.Symbol("u"), sp.Symbol("t")
+    _ = (x, y)
+    defs = {
+        "L1_x": [
+            ("L1_x__t=y", u, t, 1),
+            ("L1_x__t=1-y", u, 1 - t, -1),
+        ],
+        "L2_y": [
+            ("L2_y__t=x", t, u, -1),
+            ("L2_y__t=1-x", 1 - t, u, 1),
+        ],
+        "L3_1mx": [
+            ("L3_1mx__t=y", 1 - u, t, -1),
+            ("L3_1mx__t=1-y", 1 - u, 1 - t, 1),
+        ],
+        "L4_1my": [
+            ("L4_1my__t=x", t, 1 - u, 1),
+            ("L4_1my__t=1-x", 1 - t, 1 - u, -1),
+        ],
+        "L5_xpy_mhalf": [
+            ("L5__t=x", t, sp.Rational(1, 2) - t + u, -1),
+            ("L5__t=y", sp.Rational(1, 2) - t + u, t, 1),
+        ],
+    }
+    return _make_facet_charts(defs)
+
+
+def q1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart]]:
+    """Charts for the Q1 convex quadrilateral fixture."""
+    u, t = sp.Symbol("u"), sp.Symbol("t")
+    _ = (x, y)
+    defs = {
+        "Q1_Lx": [
+            ("Q1_Lx__t=y", u, t, 1),
+            ("Q1_Lx__t=1-y", u, 1 - t, -1),
+        ],
+        "Q1_By": [
+            ("Q1_By__t=x", t, u, -1),
+            ("Q1_By__t=2-x", 2 - t, u, 1),
+        ],
+        "Q1_T1my": [
+            ("Q1_T1my__t=x", t, 1 - u, 1),
+            ("Q1_T1my__t=3-x", 3 - t, 1 - u, -1),
+        ],
+        "Q1_D2mXpy": [
+            ("Q1_D2mXpy__t=x", t + u, t - 2, -1),
+            ("Q1_D2mXpy__t=y", t + 2 + u, t, -1),
+        ],
+    }
+    return _make_facet_charts(defs)
+
+
+# Backward-compatible M1 API adapters
+def expected_interval_prefactor_for_m1_facet(facet_name: str, t: sp.Symbol) -> sp.Expr:
+    from posgeo.geometry.region2d import PentagonM1Region
+
+    region = PentagonM1Region.build()
+    verts = list(PentagonM1Region.vertices())
+    charts = m1_facet_charts_all(region.x, region.y)
+    chart = charts[facet_name][0]
+    exp = expected_interval_prefactor_from_chart(region, facet_name, chart, verts)
+    return sp.simplify(exp.subs({chart.t: t}))
+
+
+def interval_endpoints_from_chart_ccw_compat(*args):
+    """Compat shim for old call style: (facet_name, chart, verts_ccw)."""
+    if len(args) == 4:
+        return _interval_endpoints_from_chart_ccw_impl(*args)
+    if len(args) == 3:
+        facet_name, chart, verts_ccw = args
+        from posgeo.geometry.region2d import PentagonM1Region
+
+        return _interval_endpoints_from_chart_ccw_impl(PentagonM1Region.build(), facet_name, chart, verts_ccw)
+    raise TypeError("interval_endpoints_from_chart_ccw expects 3 or 4 positional args")
+
+
+# preserve original public name while supporting both signatures
+interval_endpoints_from_chart_ccw = interval_endpoints_from_chart_ccw_compat

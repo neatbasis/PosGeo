@@ -3,32 +3,33 @@
 # tests/test_m1_residues.py
 import sympy as sp
 
-from posgeo.geometry.region2d import PentagonM1Region
-from posgeo.forms.canonical2d import canonical_form_from_triangulation, triangulation_A_m1, m1_pentagon_vertices
+from posgeo.forms.canonical2d import canonical_form_from_triangulation
 from posgeo.forms.residues2d import (
-    m1_facet_charts_all,
     residue_2form_on_facet,
     expected_interval_prefactor_from_chart,
-    expected_interval_prefactor_from_chart_ccw
+    expected_interval_prefactor_from_chart_ccw,
 )
+from tests.helpers.geometry_cases import GEOMETRY_CASES
+import pytest
 from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
-def test_residues_orientation_agnostic_structural_layer():
+@pytest.mark.parametrize("geometry_case", GEOMETRY_CASES, ids=lambda c: c.name)
+def test_residues_orientation_agnostic_structural_layer(geometry_case):
     """Axiom IDs: TA-RR. Test type: structural.
 
 Orientation-agnostic structural layer: residue relation holds up to ± on every chart."""
-    region = PentagonM1Region.build()
+    region = geometry_case.build_region()
     x, y = region.x, region.y
-    omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
-    verts = list(m1_pentagon_vertices())
+    omega = canonical_form_from_triangulation(geometry_case.tri_a(x, y)).simplify()
+    verts = list(geometry_case.vertices())
 
-    charts_by_facet = m1_facet_charts_all(x, y)
+    charts_by_facet = geometry_case.facet_charts(x, y)
 
     for facet_name, charts in charts_by_facet.items():
         for chart in charts:
             res = residue_2form_on_facet(omega, chart).simplify()
-            expected = expected_interval_prefactor_from_chart(facet_name, chart, verts)
+            expected = expected_interval_prefactor_from_chart(region, facet_name, chart, verts)
             context = f"{facet_name}/{chart.name}"
 
             res_prefactor = assert_valid_symbolic_value(
@@ -47,21 +48,22 @@ Orientation-agnostic structural layer: residue relation holds up to ± on every 
                 f"diff={diff1}, diff(signflip)={diff2}"
             )
         
-def test_residues_orientation_fixed_deterministic_layer():
+@pytest.mark.parametrize("geometry_case", GEOMETRY_CASES, ids=lambda c: c.name)
+def test_residues_orientation_fixed_deterministic_layer(geometry_case):
     """Axiom IDs: TA-RR, TA-VN. Test type: failure-mode.
 
 Orientation-fixed deterministic layer: fails when CCW residue signs drift from the expected boundary form."""
-    region = PentagonM1Region.build()
+    region = geometry_case.build_region()
     x, y = region.x, region.y
-    omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
+    omega = canonical_form_from_triangulation(geometry_case.tri_a(x, y)).simplify()
 
-    charts_by_facet = m1_facet_charts_all(x, y)
-    verts = list(m1_pentagon_vertices())
+    charts_by_facet = geometry_case.facet_charts(x, y)
+    verts = list(geometry_case.vertices())
 
     for facet, charts in charts_by_facet.items():
         for chart in charts:
             res = residue_2form_on_facet(omega, chart).simplify()
-            exp = expected_interval_prefactor_from_chart_ccw(facet, chart, verts, region=region)
+            exp = expected_interval_prefactor_from_chart_ccw(region, facet, chart, verts)
             context = f"{facet}/{chart.name}"
 
             res_prefactor = assert_valid_symbolic_value(
