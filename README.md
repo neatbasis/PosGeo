@@ -437,14 +437,16 @@ This project builds on the development of **positive geometry**, the **amplituhe
   *Deep Into the Amplituhedron: Amplitude Singularities at All Loops and Legs*
   [https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.122.051601](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.122.051601)
 
-## How sources map to this implementation
+## Source-to-scope status table
 
-| Source | What theorem/claim is used here | Status in repo | Where enforced |
-|---|---|---|---|
-| Arkani-Hamed, Bai, Lam (2017), [1703.04541](https://arxiv.org/abs/1703.04541) | Canonical-form axiom basis for log-purity, residue recursion, no-spurious-pole boundary visibility, and triangulation confluence. | implemented | `TA-LP`, `TA-RR`, `TA-VN`, `TA-TC` in `AXIOMS.md`; executable checks in `tests/test_m1_simple_poles_only.py`, `tests/test_m1_residues.py`, `tests/test_m1_pole_locality.py`, `tests/test_m1_confluence.py`, and `tests/AXIOM_TRACEABILITY.md`. |
-| Benincasa–Parisi (2020), [2005.03612](https://arxiv.org/abs/2005.03612) | Non-logarithmic singularity regimes are treated as outside the current validator contract. | out of scope | Declared as limitation in `README.md` scope clauses (“Non-logarithmic singularities” not supported) and tied to `TA-LP` scope caveats in `AXIOMS.md`. |
-| Dian–Mazzucchelli–Tellander (2025), [2410.11501](https://arxiv.org/abs/2410.11501) | Two-loop amplituhedron weighted/internal-boundary machinery is acknowledged as beyond the convex affine 2D polygon implementation. | out of scope | Captured by `README.md` exclusions (“Not amplituhedron-scale”, no higher-dimensional/projective support) and `TA-LP`/`TA-VN` scope caveats in `AXIOMS.md`. |
-| Arkani-Hamed et al., PRL 122.051601 (2019) | Conceptual motivation for loop-level amplituhedron singularity structure only; not used as an executable gate in this codebase. | partial | Referenced in literature context only; no dedicated axiom ID or direct test gate beyond the existing `TA-*` registry and `tests/AXIOM_TRACEABILITY.md` contract. |
+| Source | Source-to-scope interpretation in this repo | Status |
+|---|---|---|
+| Arkani-Hamed, Bai, Lam (2017), [1703.04541](https://arxiv.org/abs/1703.04541) | Primary executable axiom basis for log-purity, residue recursion, visible-boundary poles, and triangulation confluence in the convex affine 2D bounded linear-facet domain. | implemented |
+| Benincasa–Parisi (2020), [2005.03612](https://arxiv.org/abs/2005.03612) | Non-log covariant forms / higher-order-pole regimes are treated as outside current executable guarantees. See `AXIOMS.md` §VII “Explicit Limitations (v0.2)”. | out-of-scope |
+| Dian–Mazzucchelli–Tellander (2025), [2410.11501](https://arxiv.org/abs/2410.11501) | Weighted positive geometries (including loop/internal-boundary opposite-orientation structures) are outside current executable guarantees. See `AXIOMS.md` §VII “Explicit Limitations (v0.2)”. | out-of-scope |
+| Arkani-Hamed et al., PRL 122.051601 (2019) | Conceptual motivation for loop-level amplituhedron singularity structure; not currently represented by a dedicated executable axiom gate in this codebase. | partial |
+
+`implemented` = executable guarantees exist in the current validator; `partial` = conceptual influence without dedicated direct gate; `out-of-scope` = explicitly excluded from current executable certification paths.
   
 ## 🔷 Scattering Amplitude Methods (Pre-Amplituhedron Foundations)
 
