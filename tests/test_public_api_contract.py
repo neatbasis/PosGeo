@@ -62,7 +62,7 @@ def test_triangulation_forms_have_same_symbols_and_are_finite_interior():
     assert omegaB.x == x and omegaB.y == y
 
     # Spot-check finiteness on sampled interior points
-    for xv, yv in region.sample_interior_points(n=10):
+    for xv, yv in region.sample_interior_points(n=10, deterministic=True):
         a = sp.simplify(omegaA.prefactor.subs({x: xv, y: yv}))
         b = sp.simplify(omegaB.prefactor.subs({x: xv, y: yv}))
         assert _is_finite_expr(a), f"omegaA not finite at {(xv,yv)}: {a}"

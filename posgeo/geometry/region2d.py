@@ -23,11 +23,64 @@ class Region2D:
                 return False
         return True
 
-    def sample_interior_points(self, n: int = 25) -> List[Tuple[float, float]]:
+    def _contains_symbolic(self, xv: sp.Rational, yv: sp.Rational) -> bool:
+        """Exact strict interior check for symbolic/rational substitutions."""
+        for ln in self.facets.values():
+            value = sp.simplify(ln.expr.subs({self.x: xv, self.y: yv}))
+            if value <= 0:
+                return False
+        return True
+
+    def fixed_interior_rational_points(
+        self,
+        n: int = 25,
+        *,
+        max_denominator: int = 20,
+    ) -> List[Tuple[sp.Rational, sp.Rational]]:
+        """
+        Deterministic exact interior points from an ordered rational lattice scan.
+
+        This is useful for QA/tests that need reproducible, exact substitutions.
+        """
+        if n <= 0:
+            return []
+
+        pts: List[Tuple[sp.Rational, sp.Rational]] = []
+        seen = set()
+        for denom in range(2, max_denominator + 1):
+            for ix in range(1, denom):
+                xv = sp.Rational(ix, denom)
+                for iy in range(1, denom):
+                    yv = sp.Rational(iy, denom)
+                    key = (xv, yv)
+                    if key in seen:
+                        continue
+                    if self._contains_symbolic(xv, yv):
+                        seen.add(key)
+                        pts.append(key)
+                        if len(pts) == n:
+                            return pts
+
+        raise RuntimeError(
+            f"Failed to deterministically produce {n} interior rational points; got {len(pts)}."
+        )
+
+    def sample_interior_points(
+        self,
+        n: int = 25,
+        *,
+        deterministic: bool = False,
+    ) -> List[Tuple[float, float]]:
         """
         Simple rejection sampler for the M1 pentagon (bounded within [0,1]^2).
         Works because M1 region is defined inside the unit square.
         """
+        if deterministic:
+            return [
+                (float(xv), float(yv))
+                for xv, yv in self.fixed_interior_rational_points(n=n)
+            ]
+
         import random
 
         pts: List[Tuple[float, float]] = []
