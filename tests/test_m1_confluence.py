@@ -10,7 +10,9 @@ from posgeo.forms.canonical2d import (
 )
 
 def test_triangulation_confluence_symbolic():
-    """Exact identity gate: triangulation A and B must match symbolically."""
+    """Axiom IDs: TA-TC, TA-E1. Test type: structural.
+
+Exact identity gate: triangulation A and B must match symbolically."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
 
@@ -21,7 +23,9 @@ def test_triangulation_confluence_symbolic():
 
 
 def test_triangulation_confluence_exact_rational_regression():
-    """Finite-sample exact rational smoke test; not a substitute for symbolic equality."""
+    """Axiom IDs: TA-TC, TA-E1. Test type: failure-mode.
+
+Finite-sample rational regression that fails on numeric drift or invalid finite values."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
 

@@ -6,6 +6,7 @@ from tests.helpers.pole_checks import assert_boundary_subset, normalized_denomin
 
 
 def test_only_boundary_poles_in_final_form():
+    """Axiom IDs: TA-VN, TA-GC. Test type: structural."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
