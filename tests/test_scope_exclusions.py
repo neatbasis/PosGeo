@@ -26,7 +26,7 @@ def _unit_square_region() -> Region2D:
     return Region2D(x=x, y=y, facets=facets)
 
 
-def test_higher_order_pole_is_explicitly_out_of_scope_for_log_purity_gate():
+def test_higher_order_pole_is_explicitly_rejected_by_singularity_report():
     """Axiom IDs: TA-LP, TA-GC. Test type: negative/failure-mode."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
@@ -43,8 +43,21 @@ def test_higher_order_pole_is_explicitly_out_of_scope_for_log_purity_gate():
     assert failed_checks
     assert any("chart-second-order-nonzero" in c.failure_reasons for c in failed_checks)
 
-    with pytest.raises(AssertionError, match="TA-LP log-purity failed"):
+
+
+def test_higher_order_pole_is_explicitly_rejected_by_assert_log_pure():
+    """Axiom IDs: TA-LP, TA-GC. Test type: negative/failure-mode."""
+    region = PentagonM1Region.build()
+    x, y = region.x, region.y
+
+    synthetic_higher_order = Canonical2Form(x=x, y=y, prefactor=1 / (x**2 * y))
+
+    with pytest.raises(AssertionError, match="TA-LP log-purity failed") as exc_info:
         assert_log_pure(synthetic_higher_order, region, m1_facet_charts_all(x, y))
+
+    message = str(exc_info.value)
+    assert "non-simple-multiplicity" in message
+    assert "chart-order-failed" in message
 
 
 def test_assert_canonical_scope_exposes_unsupported_geometry_class_explicitly():
