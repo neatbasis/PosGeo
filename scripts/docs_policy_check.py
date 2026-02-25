@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -25,7 +26,28 @@ class Section:
 
 
 def run_git(*args: str) -> str:
-    return subprocess.check_output(["git", *args], text=True)
+    cmd = ["git", *args]
+    try:
+        return subprocess.check_output(cmd, text=True, stderr=subprocess.PIPE)
+    except FileNotFoundError as exc:
+        print(
+            "git executable not found; install git on the runner or use an image with git preinstalled.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1) from exc
+    except subprocess.CalledProcessError as exc:
+        failing_cmd = exc.cmd if exc.cmd else cmd
+        if isinstance(failing_cmd, (list, tuple)):
+            cmd_text = shlex.join(str(part) for part in failing_cmd)
+        else:
+            cmd_text = str(failing_cmd)
+
+        print(f"git command failed: {cmd_text}", file=sys.stderr)
+        if exc.stderr:
+            print(exc.stderr.strip(), file=sys.stderr)
+
+        code = exc.returncode if isinstance(exc.returncode, int) and exc.returncode != 0 else 1
+        raise SystemExit(code) from exc
 
 
 def parse_sections(readme_text: str) -> dict[str, Section]:
