@@ -12,6 +12,18 @@ This artifact maps normalized axiom IDs in `AXIOMS.md` to executable tests, and 
   - `Axiom IDs: ...`
   - `Test type: structural|failure-mode`
 
+### Literature provenance (non-normative)
+
+The entries below are descriptive provenance notes for each mandatory axiom. They document primary theory lineage and scope posture, while keeping executable falsification criteria repository-defined and scoped to this codebase (i.e., external citations are not a pass/fail requirement for tests).
+
+- `TA-LP`: Primary source lineage is ABL (2017) canonical-form boundary behavior; **classification:** definition-level in this repository's scoped 2D polygon regime; executable falsification remains repository-defined/scoped.
+- `TA-RR`: Primary source lineage is ABL (2017) recursive boundary/canonical-form framework; **classification:** definition-level (with orientation normalization as implemented); executable falsification remains repository-defined/scoped.
+- `TA-VN`: Primary source lineage is ABL (2017) canonical-form true-boundary pole support, with implementation emphasis on final-form visibility; **classification:** definition-level with scoped implementation caveat; executable falsification remains repository-defined/scoped.
+- `TA-E1`: Primary source lineage is symbolic exactness requirements needed for trustworthy canonical-form certification in this engine; **classification:** extension/engineering caveat (not a standalone geometric definition); executable falsification remains repository-defined/scoped.
+- `TA-E3`: Primary source lineage is residue invariance under admissible local descriptions in canonical-form practice; **classification:** extension/caveat for deterministic chart handling in this implementation; executable falsification remains repository-defined/scoped.
+- `TA-GC`: Primary source lineage is canonical-form triangulation/cancellation behavior interpreted at whole-expression level; **classification:** extension/caveat on implementation methodology (global simplification policy); executable falsification remains repository-defined/scoped.
+- `TA-TC`: Primary source lineage is triangulation-independence expectations for canonical-form constructions; **classification:** extension/regression oracle in this repository (not definitional grounding); executable falsification remains repository-defined/scoped.
+
 ## Formal condition traceability
 
 | Axiom ID | Formal condition summary | Exact falsification criteria (from `AXIOMS.md`) | Structural tests | Failure-mode tests |
