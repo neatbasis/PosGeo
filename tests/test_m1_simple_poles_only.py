@@ -14,6 +14,7 @@ from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
 def test_m1_final_form_has_only_simple_boundary_poles_and_chart_order_one_limits():
+    """Axiom IDs: TA-LP, TA-GC. Test type: failure-mode."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
 

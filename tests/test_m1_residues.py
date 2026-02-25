@@ -15,7 +15,9 @@ from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
 def test_residues_match_interval_forms_up_to_sign():
-    """TA-RR: structural residue relation (orientation-agnostic, up to ±) on every chart."""
+    """Axiom IDs: TA-RR. Test type: structural.
+
+Orientation-agnostic residue relation (up to ±) on every chart."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
@@ -46,7 +48,9 @@ def test_residues_match_interval_forms_up_to_sign():
             )
         
 def test_residues_match_interval_forms_deterministic_sign():
-    """TA-RR+O2: orientation-fixed residue relation in CCW convention (no ± ambiguity) on every chart."""
+    """Axiom IDs: TA-RR, TA-VN. Test type: failure-mode.
+
+Fails when deterministic CCW residue signs drift from the expected boundary form."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()

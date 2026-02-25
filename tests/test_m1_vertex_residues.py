@@ -48,6 +48,7 @@ def _assert_simple_pole(prefactor: sp.Expr, t: sp.Symbol, endpoint: sp.Expr, *, 
 
 
 def test_m1_vertex_endpoint_residues_orientation_free_are_pm_one():
+    """Axiom IDs: TA-LP, TA-RR. Test type: structural."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     verts_ccw = list(m1_pentagon_vertices())
@@ -82,6 +83,7 @@ def test_m1_vertex_endpoint_residues_orientation_free_are_pm_one():
 
 
 def test_m1_vertex_endpoint_residues_ccw_fixed_are_plus_one():
+    """Axiom IDs: TA-RR. Test type: failure-mode."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     verts_ccw = list(m1_pentagon_vertices())
@@ -114,6 +116,7 @@ def test_m1_vertex_endpoint_residues_ccw_fixed_are_plus_one():
 
 
 def test_m1_terminal_residue_chains_2d_to_vertex_are_pm_one():
+    """Axiom IDs: TA-RR. Test type: structural."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     verts_ccw = list(m1_pentagon_vertices())

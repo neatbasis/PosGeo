@@ -36,6 +36,7 @@ def _solve_reparam_t1_of_t0(ch0, ch) -> sp.Expr:
 
 
 def test_reparam_is_not_constant_for_all_m1_chart_pairs():
+    """Axiom IDs: TA-E3. Test type: failure-mode."""
     x, y = sp.symbols("x y", real=True)
     charts_by_facet = m1_facet_charts_all(x, y)
 

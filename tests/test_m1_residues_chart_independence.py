@@ -66,7 +66,9 @@ def _solve_reparam_t1_of_t0(ch0, ch) -> sp.Expr:
 
 
 def test_residue_chart_independence_deterministic_sign():
-    """TA-RR+O2: CCW-oriented residues are exact (no ±) and chart-independent after pullback."""
+    """Axiom IDs: TA-RR, TA-E3. Test type: structural.
+
+CCW-oriented residues are exact (no ±) and chart-independent after pullback."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     omega2 = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
@@ -134,7 +136,9 @@ def test_residue_chart_independence_deterministic_sign():
 
 def test_residue_chart_independence_up_to_pullback_and_sign():
     """
-    TA-RR (structural): orientation-agnostic residue relation, checked chart-by-chart.
+    Axiom IDs: TA-RR, TA-E3. Test type: failure-mode.
+
+    Fails when chart pullback or orientation-sign agreement is broken.
 
     For each facet, we provide >=2 coordinate charts (u,t) with the facet at u=0.
     We compute the residue 1-form in each chart and verify:
