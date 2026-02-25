@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import sympy as sp
 
 from posgeo.forms.simplex2d import Triangle2D
 from posgeo.typing import Canonical2Form
+from posgeo.validation.triangulation import validate_triangulation
 
 
 @dataclass(frozen=True)
@@ -17,9 +18,13 @@ class Triangulation2D:
     triangles: Tuple[Triangle2D, ...]
 
 
-def canonical_form_from_triangulation(tri: Triangulation2D) -> Canonical2Form:
-    if not tri.triangles:
-        raise ValueError("Triangulation has no triangles.")
+def canonical_form_from_triangulation(
+    tri: Triangulation2D,
+    *,
+    region=None,
+    vertices: Optional[Tuple[Tuple[sp.Rational, sp.Rational], ...]] = None,
+) -> Canonical2Form:
+    validate_triangulation(tri, region=region, vertices=vertices)
     x = tri.triangles[0].x
     y = tri.triangles[0].y
     f = sum((t.canonical_form().prefactor for t in tri.triangles), sp.Integer(0))

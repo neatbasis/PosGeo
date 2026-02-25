@@ -14,8 +14,16 @@ Exact identity gate: triangulation A and B must match symbolically."""
     region = geometry_case.build_region()
     x, y = region.x, region.y
 
-    omegaA = canonical_form_from_triangulation(geometry_case.tri_a(x, y)).simplify()
-    omegaB = canonical_form_from_triangulation(geometry_case.tri_b(x, y)).simplify()
+    omegaA = canonical_form_from_triangulation(
+        geometry_case.tri_a(x, y),
+        region=region,
+        vertices=geometry_case.vertices(),
+    ).simplify()
+    omegaB = canonical_form_from_triangulation(
+        geometry_case.tri_b(x, y),
+        region=region,
+        vertices=geometry_case.vertices(),
+    ).simplify()
 
     assert sp.simplify(omegaA.prefactor - omegaB.prefactor) == 0
 
@@ -28,8 +36,16 @@ Finite-sample rational regression that fails on numeric drift or invalid finite 
     region = geometry_case.build_region()
     x, y = region.x, region.y
 
-    omegaA = canonical_form_from_triangulation(geometry_case.tri_a(x, y)).simplify()
-    omegaB = canonical_form_from_triangulation(geometry_case.tri_b(x, y)).simplify()
+    omegaA = canonical_form_from_triangulation(
+        geometry_case.tri_a(x, y),
+        region=region,
+        vertices=geometry_case.vertices(),
+    ).simplify()
+    omegaB = canonical_form_from_triangulation(
+        geometry_case.tri_b(x, y),
+        region=region,
+        vertices=geometry_case.vertices(),
+    ).simplify()
 
     # Smoke-check equality on a fixed-size deterministic interior rational sample only.
     # The symbolic test above remains the conclusive confluence check.
