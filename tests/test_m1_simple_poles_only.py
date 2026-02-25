@@ -3,20 +3,20 @@
 import pytest
 import sympy as sp
 
-from posgeo.geometry.region2d import PentagonM1Region
-from posgeo.forms.canonical2d import canonical_form_from_triangulation, triangulation_A_m1
-from posgeo.forms.residues2d import m1_facet_charts_all
+from posgeo.forms.canonical2d import canonical_form_from_triangulation
 from posgeo.typing import Canonical2Form
 from posgeo.validation import assert_log_pure, singularity_report
+from tests.helpers.geometry_cases import GEOMETRY_CASES
 
 
-def test_m1_final_form_has_only_simple_boundary_poles_and_chart_order_one_limits():
+@pytest.mark.parametrize("geometry_case", GEOMETRY_CASES, ids=lambda c: c.name)
+def test_m1_final_form_has_only_simple_boundary_poles_and_chart_order_one_limits(geometry_case):
     """Axiom IDs: TA-LP, TA-GC. Test type: failure-mode."""
-    region = PentagonM1Region.build()
+    region = geometry_case.build_region()
     x, y = region.x, region.y
 
-    omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
-    charts = m1_facet_charts_all(x, y)
+    omega = canonical_form_from_triangulation(geometry_case.tri_a(x, y)).simplify()
+    charts = geometry_case.facet_charts(x, y)
 
     report = assert_log_pure(omega, region, charts)
 
@@ -26,13 +26,18 @@ def test_m1_final_form_has_only_simple_boundary_poles_and_chart_order_one_limits
     assert all(check.passed for check in report.local_chart_order_checks)
 
 
-def test_assert_log_pure_reports_failures_machine_readably():
-    region = PentagonM1Region.build()
+@pytest.mark.parametrize("geometry_case", GEOMETRY_CASES, ids=lambda c: c.name)
+def test_assert_log_pure_reports_failures_machine_readably(geometry_case):
+    region = geometry_case.build_region()
     x, y = region.x, region.y
-    charts = m1_facet_charts_all(x, y)
+    charts = geometry_case.facet_charts(x, y)
 
-    # x^2 in the denominator violates simple-pole multiplicity and local chart order checks.
-    bad = Canonical2Form(x=x, y=y, prefactor=1 / (x**2 * y))
+    boundary_facets = list(region.facets.values())
+    primary = sp.simplify(boundary_facets[0].expr)
+    secondary = sp.simplify(boundary_facets[1].expr)
+
+    # Squared boundary factor violates simple-pole multiplicity and local chart order checks.
+    bad = Canonical2Form(x=x, y=y, prefactor=1 / (primary**2 * secondary))
     report = singularity_report(bad, region, charts)
 
     assert report.passed is False
