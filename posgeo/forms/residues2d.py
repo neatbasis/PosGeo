@@ -320,7 +320,17 @@ def interval_endpoints_from_chart_ccw(
 def _point_inside_region(region, px, py) -> bool:
     subs = {region.x: px, region.y: py}
     for f in region.facets.values():
-        if sp.N(f.expr.subs(subs)) < -1e-12:
+        val = sp.simplify(f.expr.subs(subs))
+        if val.is_number is not True:
+            raise ValueError(
+                "Facet expression did not simplify to a numeric value after substitution: "
+                f"expr={f.expr}, substituted={val}"
+            )
+
+        if val.is_negative is True:
+            return False
+
+        if (val.is_Rational is True or val.is_Integer is True) and val < 0:
             return False
     return True
 
