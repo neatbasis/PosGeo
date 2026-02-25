@@ -660,6 +660,7 @@ Not treated:
 * Non-logarithmic covariant-form regimes (multiple pole orders) are not implemented as certification pathways.
 * Weighted positive geometries/internal-boundary opposite-orientation loop regimes are out of scope.
 * Current invariants certify only convex affine 2D bounded linear-facet canonical-log regime.
+* In v0.x, explicit rejections such as `non-simple-multiplicity` and `chart-order-failed` for higher-order poles are expected scope exclusions, not contradictions of non-log literature.
 * Pseudo-positive/null geometries ((\Omega \equiv 0))
 
 Cross-reference to executable gates for these exclusions:

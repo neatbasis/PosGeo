@@ -49,6 +49,8 @@ All guarantees and invariants currently apply only within:
 * Non-logarithmic singularities
 * Floating-point validation
 
+In the v0.x line, synthetic forms with higher-order poles are intentionally rejected by the log-purity gate (`non-simple-multiplicity`, `chart-order-failed`). This is an explicit scope exclusion of the executable validator, not a contradiction of broader non-log canonical-form literature.
+
 Any extension beyond this domain requires explicit revision of assumptions and invariants.
 
 ### What this does NOT prove
