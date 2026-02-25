@@ -262,10 +262,14 @@ pytest
 
 Symbolic simplification and expression forms can vary across Python/SymPy versions, so equivalent mathematics may print differently. The CI matrix is the source of truth for supported combinations and expected pass/fail behavior.
 
+To avoid CI capacity saturation, the full commented version matrix remains intentionally disabled in the workflow file; only the currently active tuple(s) execute in automation.
+
+Policy note (mandatory): theorem-facing checks are required for mergeability. Changes that touch `posgeo/`, `tests/`, `AXIOMS.md`, or claim-bearing README content must pass the required `CI / test` status check on the default branch before merge.
+
 Canonical dependency references:
 
 * `pyproject.toml` for project-level Python/dependency constraints.
-* `.github/workflows/ci.yml.disabled` for the tested matrix tuple definitions.
+* `.github/workflows/ci.yml` for the active tested tuple definitions and the commented full matrix.
 
 ---
 
