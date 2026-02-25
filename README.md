@@ -224,6 +224,14 @@ The test suite enforces:
 
 Failure of any test indicates violation of canonical-form axioms within the declared domain.
 
+## Implementation Map
+
+* `posgeo/forms/canonical2d.py` — triangulation and canonical-form assembly.
+* `posgeo/forms/residues2d.py` — facet charts, residues, and reparameterization helpers.
+* `posgeo/validation/preconditions.py` — scope gating.
+* `posgeo/validation/singularity_gate.py` — log-purity gate/report.
+* `tests/AXIOM_TRACEABILITY.md` — axiom-to-test mapping.
+
 # Happy Path Validation
 
 Use this ordered checklist for a quick confidence pass:
