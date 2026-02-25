@@ -8,6 +8,7 @@ from posgeo.forms.canonical2d import (
     triangulation_A_m1,
     triangulation_B_m1,
 )
+from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
 def test_triangulation_confluence_symbolic():
@@ -32,8 +33,21 @@ def test_triangulation_confluence_exact_rational_regression():
     # Smoke-check equality on a fixed-size deterministic interior rational sample only.
     # The symbolic test above remains the conclusive confluence check.
     pts = region.fixed_interior_rational_points(n=15)
-    for (xv, yv) in pts:
-        delta = sp.simplify(
-            omegaA.prefactor.subs({x: xv, y: yv}) - omegaB.prefactor.subs({x: xv, y: yv})
+    for i, (xv, yv) in enumerate(pts):
+        point_id = f"confluence-subs[pt#{i}:x={xv},y={yv}]"
+        prefactor_a = assert_valid_symbolic_value(
+            omegaA.prefactor.subs({x: xv, y: yv}),
+            context=point_id,
+            quantity="triangulation-A prefactor",
         )
-        assert delta == 0
+        prefactor_b = assert_valid_symbolic_value(
+            omegaB.prefactor.subs({x: xv, y: yv}),
+            context=point_id,
+            quantity="triangulation-B prefactor",
+        )
+        delta = assert_valid_symbolic_value(
+            prefactor_a - prefactor_b,
+            context=point_id,
+            quantity="prefactor delta",
+        )
+        assert delta == 0, f"{point_id}: expected zero A-B difference, got {delta}"
