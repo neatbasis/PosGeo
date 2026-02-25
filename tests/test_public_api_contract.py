@@ -1,12 +1,12 @@
 # tests/test_public_api_contract.py
 import sympy as sp
 
+from posgeo.geometry import M1_PENTAGON_FIXTURE
 from posgeo.geometry.region2d import PentagonM1Region, Region2D
 from posgeo.forms.canonical2d import (
     canonical_form_from_triangulation,
     triangulation_A_m1,
-    triangulation_B_m1,
-    m1_pentagon_vertices,
+    triangulation_B_m1
 )
 from posgeo.forms.residues2d import (
     m1_facet_charts_all,
@@ -37,7 +37,7 @@ def test_region_build_contract():
 
 
 def test_vertices_contract_is_ccw_and_matches_region():
-    verts = list(m1_pentagon_vertices())
+    verts = list(M1_PENTAGON_FIXTURE.vertices)
     assert len(verts) == 5
 
     # match Region2D facet set expectations by checking each vertex lies on >=2 boundary lines

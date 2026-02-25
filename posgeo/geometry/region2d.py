@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 import sympy as sp
 
 from .lines import OrientedLine2D
+from .fixtures2d import M1_PENTAGON_FIXTURE, Q1_QUADRILATERAL_FIXTURE
 
 
 @dataclass(frozen=True)
@@ -98,25 +99,11 @@ class PentagonM1Region:
 
     @staticmethod
     def build() -> Region2D:
-        x, y = sp.symbols("x y", real=True)
-        facets = {
-            "L1_x": OrientedLine2D(x, y, x),
-            "L2_y": OrientedLine2D(x, y, y),
-            "L3_1mx": OrientedLine2D(x, y, 1 - x),
-            "L4_1my": OrientedLine2D(x, y, 1 - y),
-            "L5_xpy_mhalf": OrientedLine2D(x, y, x + y - sp.Rational(1, 2)),
-        }
-        return Region2D(x=x, y=y, facets=facets)
+        return M1_PENTAGON_FIXTURE.build_region()
+
     @staticmethod
     def vertices():
-        import sympy as sp
-        return (
-            (sp.Rational(0), sp.Rational(1, 2)),
-            (sp.Rational(0), sp.Rational(1)),
-            (sp.Rational(1), sp.Rational(1)),
-            (sp.Rational(1), sp.Rational(0)),
-            (sp.Rational(1, 2), sp.Rational(0)),
-        )
+        return M1_PENTAGON_FIXTURE.vertices
 
 
 class QuadrilateralQ1Region:
@@ -133,20 +120,8 @@ class QuadrilateralQ1Region:
 
     @staticmethod
     def build() -> Region2D:
-        x, y = sp.symbols("x y", real=True)
-        facets = {
-            "Q1_Lx": OrientedLine2D(x, y, x),
-            "Q1_By": OrientedLine2D(x, y, y),
-            "Q1_T1my": OrientedLine2D(x, y, 1 - y),
-            "Q1_D2mXpy": OrientedLine2D(x, y, 2 - x + y),
-        }
-        return Region2D(x=x, y=y, facets=facets)
+        return Q1_QUADRILATERAL_FIXTURE.build_region()
 
     @staticmethod
     def vertices():
-        return (
-            (sp.Rational(0), sp.Rational(0)),
-            (sp.Rational(2), sp.Rational(0)),
-            (sp.Rational(3), sp.Rational(1)),
-            (sp.Rational(0), sp.Rational(1)),
-        )
+        return Q1_QUADRILATERAL_FIXTURE.vertices

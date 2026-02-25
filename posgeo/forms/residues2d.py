@@ -5,6 +5,7 @@ from typing import Dict, Iterable, List, Tuple
 
 import sympy as sp
 
+from posgeo.geometry.fixtures2d import M1_PENTAGON_FIXTURE, Q1_QUADRILATERAL_FIXTURE
 from posgeo.geometry.region2d import Region2D
 from posgeo.typing import Canonical1Form, Canonical2Form
 
@@ -237,56 +238,14 @@ def expected_interval_prefactor_from_chart_ccw(
 
 # -- M1 adapters --
 def m1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart]]:
-    u, t = sp.Symbol("u"), sp.Symbol("t")
     _ = (x, y)
-    defs = {
-        "L1_x": [
-            ("L1_x__t=y", u, t, 1),
-            ("L1_x__t=1-y", u, 1 - t, -1),
-        ],
-        "L2_y": [
-            ("L2_y__t=x", t, u, -1),
-            ("L2_y__t=1-x", 1 - t, u, 1),
-        ],
-        "L3_1mx": [
-            ("L3_1mx__t=y", 1 - u, t, -1),
-            ("L3_1mx__t=1-y", 1 - u, 1 - t, 1),
-        ],
-        "L4_1my": [
-            ("L4_1my__t=x", t, 1 - u, 1),
-            ("L4_1my__t=1-x", 1 - t, 1 - u, -1),
-        ],
-        "L5_xpy_mhalf": [
-            ("L5__t=x", t, sp.Rational(1, 2) - t + u, -1),
-            ("L5__t=y", sp.Rational(1, 2) - t + u, t, 1),
-        ],
-    }
-    return _make_facet_charts(defs)
+    return _make_facet_charts({k: list(v) for k, v in M1_PENTAGON_FIXTURE.chart_defs.items()})
 
 
 def q1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart]]:
     """Charts for the Q1 convex quadrilateral fixture."""
-    u, t = sp.Symbol("u"), sp.Symbol("t")
     _ = (x, y)
-    defs = {
-        "Q1_Lx": [
-            ("Q1_Lx__t=y", u, t, 1),
-            ("Q1_Lx__t=1-y", u, 1 - t, -1),
-        ],
-        "Q1_By": [
-            ("Q1_By__t=x", t, u, -1),
-            ("Q1_By__t=2-x", 2 - t, u, 1),
-        ],
-        "Q1_T1my": [
-            ("Q1_T1my__t=x", t, 1 - u, 1),
-            ("Q1_T1my__t=3-x", 3 - t, 1 - u, -1),
-        ],
-        "Q1_D2mXpy": [
-            ("Q1_D2mXpy__t=x", t + u, t - 2, -1),
-            ("Q1_D2mXpy__t=y", t + 2 + u, t, -1),
-        ],
-    }
-    return _make_facet_charts(defs)
+    return _make_facet_charts({k: list(v) for k, v in Q1_QUADRILATERAL_FIXTURE.chart_defs.items()})
 
 
 # Backward-compatible M1 API adapters
@@ -294,7 +253,7 @@ def expected_interval_prefactor_for_m1_facet(facet_name: str, t: sp.Symbol) -> s
     from posgeo.geometry.region2d import PentagonM1Region
 
     region = PentagonM1Region.build()
-    verts = list(PentagonM1Region.vertices())
+    verts = list(M1_PENTAGON_FIXTURE.vertices)
     charts = m1_facet_charts_all(region.x, region.y)
     chart = charts[facet_name][0]
     exp = expected_interval_prefactor_from_chart(region, facet_name, chart, verts)

@@ -2,10 +2,10 @@
 
 import sympy as sp
 
+from posgeo.geometry import M1_PENTAGON_FIXTURE
 from posgeo.geometry.region2d import PentagonM1Region
 from posgeo.forms.canonical2d import (
     canonical_form_from_triangulation,
-    m1_pentagon_vertices,
     triangulation_A_m1,
 )
 from posgeo.forms.residues2d import (
@@ -51,7 +51,7 @@ def test_m1_vertex_endpoint_residues_orientation_free_are_pm_one():
     """Axiom IDs: TA-LP, TA-RR. Test type: structural."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
-    verts_ccw = list(m1_pentagon_vertices())
+    verts_ccw = list(M1_PENTAGON_FIXTURE.vertices)
 
     omega2 = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
 
@@ -86,7 +86,7 @@ def test_m1_vertex_endpoint_residues_ccw_fixed_are_plus_one():
     """Axiom IDs: TA-RR. Test type: failure-mode."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
-    verts_ccw = list(m1_pentagon_vertices())
+    verts_ccw = list(M1_PENTAGON_FIXTURE.vertices)
 
     omega2 = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
 
@@ -119,7 +119,7 @@ def test_m1_terminal_residue_chains_2d_to_vertex_are_pm_one():
     """Axiom IDs: TA-RR. Test type: structural."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
-    verts_ccw = list(m1_pentagon_vertices())
+    verts_ccw = list(M1_PENTAGON_FIXTURE.vertices)
 
     omega2 = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
 

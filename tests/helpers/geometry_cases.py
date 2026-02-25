@@ -7,8 +7,6 @@ import sympy as sp
 
 from posgeo.forms.canonical2d import (
     Triangulation2D,
-    m1_pentagon_vertices,
-    q1_quadrilateral_vertices,
     triangulation_A_m1,
     triangulation_A_q1,
     triangulation_B_m1,
@@ -17,7 +15,8 @@ from posgeo.forms.canonical2d import (
 from posgeo.forms.residues2d import FacetChart, m1_facet_charts_all, q1_facet_charts_all
 from posgeo.forms.simplex2d import Triangle2D
 from posgeo.geometry.lines import OrientedLine2D
-from posgeo.geometry.region2d import PentagonM1Region, QuadrilateralQ1Region, Region2D
+from posgeo.geometry import M1_PENTAGON_FIXTURE, Q1_QUADRILATERAL_FIXTURE
+from posgeo.geometry.region2d import Region2D
 
 
 @dataclass(frozen=True)
@@ -123,16 +122,16 @@ def h1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart
 GEOMETRY_CASES: Tuple[GeometryCase, ...] = (
     GeometryCase(
         name="m1_pentagon",
-        build_region=PentagonM1Region.build,
-        vertices=m1_pentagon_vertices,
+        build_region=M1_PENTAGON_FIXTURE.build_region,
+        vertices=lambda: M1_PENTAGON_FIXTURE.vertices,
         tri_a=triangulation_A_m1,
         tri_b=triangulation_B_m1,
         facet_charts=m1_facet_charts_all,
     ),
     GeometryCase(
         name="q1_quadrilateral",
-        build_region=QuadrilateralQ1Region.build,
-        vertices=q1_quadrilateral_vertices,
+        build_region=Q1_QUADRILATERAL_FIXTURE.build_region,
+        vertices=lambda: Q1_QUADRILATERAL_FIXTURE.vertices,
         tri_a=triangulation_A_q1,
         tri_b=triangulation_B_q1,
         facet_charts=q1_facet_charts_all,
