@@ -39,6 +39,222 @@ Every statement below is classified as:
 
 ---
 
+## I.1 Normalized Axiom Registry (Engine Contract IDs)
+
+The following registry introduces canonical IDs used by the validator and tests.
+Legacy section IDs are retained below and explicitly cross-linked.
+
+---
+
+### TA-LP — Log-Purity (Simple-Pole) Axiom
+
+**Cross-links:** `T-A4`, `F1`, `T1`
+
+**Formal statement (math relation):**
+
+\[
+\Omega = \frac{df}{f} \wedge \omega + \eta
+\]
+
+for each true boundary facet \(f=0\), where \(\omega\) and \(\eta\) are regular along \(f=0\), and no pole of order \(\ge 2\) occurs on any boundary stratum.
+
+**Structural assumptions and scope caveats:**
+
+* Enforced in the v0.2 domain: bounded convex affine polygons in \(\mathbb{R}^2\).
+* Includes codimension-2 (vertex) checks via iterated restriction.
+* Does not claim validity for nonlinear boundaries, amplituhedra, Grassmannian geometries, or non-logarithmic regimes.
+
+**Executable invariant (SymPy-tied):**
+
+* Use `sympy.cancel`, `sympy.factor`, and denominator multiplicity counting to verify facet poles are first order.
+* Use chart substitution + `sympy.series`/local expansions (or iterated algebraic restriction) at vertices to exclude hidden higher-order singular terms.
+
+**Failure condition (exact falsification):**
+
+TA-LP fails iff any boundary-aligned factor appears with multiplicity \(\ge 2\), or a vertex-local expansion/restriction exposes higher-order behavior, or a singularity appears away from the true boundary set.
+
+---
+
+### TA-RR — Recursive Residue Axiom
+
+**Cross-links:** `T-A5`, `F2`, `T1`, `T3`
+
+**Formal statement (math relation):**
+
+\[
+\operatorname{Res}_{F}\,\Omega(X_{\ge 0}) = \Omega(F)
+\]
+
+for every boundary facet \(F\), up to induced orientation sign.
+
+**Structural assumptions and scope caveats:**
+
+* Boundary strata must be well-defined and recursively positive in the scoped convex 2D setting.
+* Equality is interpreted modulo orientation conventions inherited from global orientation.
+* Outside scoped geometry classes, residue recursion may require alternative boundary models.
+
+**Executable invariant (SymPy-tied):**
+
+* Compute algebraic residues via substitution/elimination and coefficient extraction with `sympy.together`, `sympy.cancel`, and symbolic coefficient matching.
+* Normalize orientation sign and compare reduced expressions with `sympy.simplify(lhs - rhs) == 0`.
+
+**Failure condition (exact falsification):**
+
+TA-RR fails iff there exists at least one true facet \(F\) such that, after orientation normalization, `simplify(Res_F(Omega) - Omega(F))` is nonzero.
+
+---
+
+### TA-VN — Visible-Boundary / No-Spurious-Pole Axiom
+
+**Cross-links:** `T-A6`, `S-C2`, `F3`, `P-2`
+
+**Formal statement (math relation):**
+
+\[
+\operatorname{Pole}(\Omega_{\text{final}}) \subseteq \bigcup_i \{L_i=0\}_{\text{true boundary}}
+\]
+
+where every surviving irreducible denominator factor of the final canonical form corresponds to a genuine geometric boundary component.
+
+**Structural assumptions and scope caveats:**
+
+* Spurious poles may appear in intermediate decompositions/triangulations.
+* Criterion applies only to the globally simplified final form.
+* In non-logarithmic drift regimes, this criterion is not sufficient and must be versioned.
+
+**Executable invariant (SymPy-tied):**
+
+* Compute fully reduced form with `sympy.together` + `sympy.cancel`.
+* Factor denominator with `sympy.factor`/`sympy.factor_list`.
+* Assert each irreducible factor is proportional to a registered boundary linear form.
+
+**Failure condition (exact falsification):**
+
+TA-VN fails iff at least one irreducible denominator factor remains after global simplification and cannot be mapped to any true boundary component.
+
+---
+
+### TA-E1 — Exact-Arithmetic Axiom
+
+**Cross-links:** `E1`
+
+**Formal statement (math relation):**
+
+\[
+\forall c \in \text{computed coefficients},\quad c \in \mathbb{Q}
+\]
+
+with invariant checks executed over exact symbolic rationals (no floating approximation semantics).
+
+**Structural assumptions and scope caveats:**
+
+* Engine-level enforcement axiom; not a standalone geometric theorem.
+* Required for sound falsification of TA-LP, TA-RR, and TA-VN.
+* Numeric approximations are allowed only outside invariant certification pathways.
+
+**Executable invariant (SymPy-tied):**
+
+* Build constants using `sympy.Rational`/exact integers.
+* Reject or quarantine `sympy.Float` in invariant-critical expressions.
+* Use symbolic simplification (`cancel`, `factor`, `simplify`) under exact domains.
+
+**Failure condition (exact falsification):**
+
+TA-E1 fails iff any certification-path expression depends on floating-point coefficients or approximate numeric comparison in place of exact symbolic equality.
+
+---
+
+### TA-E3 — Residue-Operator Determinism Axiom
+
+**Cross-links:** `E3`, `F2`, `T3`
+
+**Formal statement (math relation):**
+
+\[
+\operatorname{Res}^{\mathcal{C}_1}_{F}(\Omega)=\operatorname{Res}^{\mathcal{C}_2}_{F}(\Omega)
+\]
+
+for admissible charts \(\mathcal{C}_1,\mathcal{C}_2\), modulo the induced orientation sign convention.
+
+**Structural assumptions and scope caveats:**
+
+* Charts must be valid local parameterizations of the same boundary stratum.
+* Sign ambiguity is limited to orientation rules (not algebraic content).
+* Outside scoped rational settings, additional analytic residue machinery may be needed.
+
+**Executable invariant (SymPy-tied):**
+
+* Implement residues through deterministic symbolic elimination/substitution order.
+* Recompute in alternate admissible charts and compare canonicalized outputs via `sympy.simplify` after sign normalization.
+
+**Failure condition (exact falsification):**
+
+TA-E3 fails iff two admissible residue computations for the same facet/stratum disagree beyond the allowed orientation sign.
+
+---
+
+### TA-GC — Global Confluence (Final-Form Cancellation) Axiom
+
+**Cross-links:** `S-C2`, `E2`, `F3`
+
+**Formal statement (math relation):**
+
+\[
+\Omega_{\text{final}} = \operatorname{cancel}\!\left(\sum_k \Omega_k\right),
+\quad \operatorname{Pole}(\Omega_{\text{final}}) \subseteq \partial X
+\]
+
+where cancellation validity is assessed globally, not termwise.
+
+**Structural assumptions and scope caveats:**
+
+* Intermediate expressions may contain non-boundary poles.
+* No requirement of pairwise cancellation.
+* Intended for symbolic rational forms in the scoped convex 2D domain.
+
+**Executable invariant (SymPy-tied):**
+
+* Aggregate terms, then run global `sympy.together` and `sympy.cancel`.
+* Factor resulting denominator and compare against boundary registry (shared with TA-VN).
+
+**Failure condition (exact falsification):**
+
+TA-GC fails iff, after whole-expression simplification, any non-boundary pole survives in the final form.
+
+---
+
+### TA-TC — Triangulation Confluence Axiom (Regression)
+
+**Cross-links:** `S-C3`, `E4`, `T2`, `F5`
+
+**Formal statement (math relation):**
+
+\[
+\sum_{\Delta\in \mathcal{T}_1}\Omega(\Delta)
+=
+\sum_{\Delta\in \mathcal{T}_2}\Omega(\Delta)
+\]
+
+for any two valid triangulations \(\mathcal{T}_1,\mathcal{T}_2\) of the same scoped polygon, after symbolic simplification.
+
+**Structural assumptions and scope caveats:**
+
+* Used as a regression oracle, not as the definition of canonicality.
+* Requires both triangulations to be valid decompositions of the same oriented region.
+* No claim made outside convex affine 2D polygon scope.
+
+**Executable invariant (SymPy-tied):**
+
+* Construct both sums symbolically.
+* Canonicalize with `sympy.together` + `sympy.cancel`.
+* Assert `sympy.simplify(sum1 - sum2) == 0`.
+
+**Failure condition (exact falsification):**
+
+TA-TC fails iff there exists a pair of valid triangulations for which the globally simplified difference is nonzero.
+
+---
+
 ## T-A1 — Positive Geometry Structure
 
 **Status: D**
@@ -85,6 +301,8 @@ It is not guaranteed for arbitrary semi-algebraic sets.
 
 ## T-A4 — Logarithmic Singularity Condition
 
+**Canonical axiom ID:** `TA-LP`
+
 **Status: D**
 
 The canonical form has only **simple poles** along boundary components.
@@ -119,6 +337,8 @@ A form that passes facet-level checks but develops higher-order poles at interse
 
 ## T-A5 — Recursive Residue Property
 
+**Canonical axiom ID:** `TA-RR`
+
 **Status: D**
 
 For each facet (F):
@@ -132,6 +352,8 @@ The canonical form is defined recursively via boundary restriction.
 ---
 
 ## T-A6 — Boundary-Only Poles (Final Form)
+
+**Canonical axiom ID:** `TA-VN`
 
 **Status: D**
 
@@ -229,6 +451,8 @@ From finite boundary decomposition, pole set is finite.
 
 ## S-C2 — No Spurious Poles in Final Form
 
+**Canonical axiom IDs:** `TA-VN`, `TA-GC`
+
 **Status: D + E**
 
 Final canonical form contains poles only on true boundary components.
@@ -238,6 +462,8 @@ Spurious poles in intermediate constructions must vanish in final expression.
 ---
 
 ## S-C3 — Triangulation Independence (Scoped)
+
+**Canonical axiom ID:** `TA-TC`
 
 **Status: Th (in ABL framework) + R (engine use)**
 
@@ -332,6 +558,8 @@ This is not claimed beyond the v0.2 domain.
 
 ## E1 — Exact Rational Arithmetic
 
+**Canonical axiom ID:** `TA-E1`
+
 Floating-point arithmetic is forbidden in invariant verification.
 
 ---
@@ -352,6 +580,8 @@ Failure invalidates the form within scope.
 
 ## E3 — Residue Operator as Primitive
 
+**Canonical axiom ID:** `TA-E3`
+
 Residue computation must be:
 
 * Deterministic,
@@ -361,6 +591,8 @@ Residue computation must be:
 ---
 
 ## E4 — Triangulation as Regression Oracle
+
+**Canonical axiom ID:** `TA-TC`
 
 Multiple construction paths must agree.
 
@@ -588,4 +820,3 @@ If none of F1–F8 occur,
 then the engine certifies the candidate form as canonical up to orientation.
 
 Certification is scoped, not universal.
-
