@@ -829,3 +829,30 @@ If none of F1–F8 occur,
 then the engine certifies the candidate form as canonical up to orientation.
 
 Certification is scoped, not universal.
+
+---
+
+# Appendix A — M1 Pentagon Closed-Form Oracle (Regression)
+
+This appendix records an independently encoded closed form for the M1 pentagon
+used as a regression oracle (classification: **R**).
+
+Let the boundary hyperplanes be
+\(x=0\), \(y=0\), \(x=1\), \(y=1\), and \(2x+2y-1=0\), with vertices ordered
+counterclockwise as
+\((0,\tfrac{1}{2})\to(0,1)\to(1,1)\to(1,0)\to(\tfrac{1}{2},0)\).
+Using ambient orientation \(dx\wedge dy\), the reference prefactor is:
+
+\[
+\Omega_{M1}^{\mathrm{ref}} =
+-\frac{x y + x + y}{x\,y\,(x-1)\,(y-1)\,(2x+2y-1)}\,dx\wedge dy.
+\]
+
+Equivalent denominator sign conventions such as
+\(x\,y\,(1-x)\,(1-y)\,(2x+2y-1)\) are acceptable if converted with the
+corresponding global sign so the orientation convention remains fixed.
+
+Engine tests compare this expression against
+`canonical_form_from_triangulation(triangulation_A_m1(...))` and
+`canonical_form_from_triangulation(triangulation_B_m1(...))` using exact
+symbolic simplification over `sympy.Rational` arithmetic.
