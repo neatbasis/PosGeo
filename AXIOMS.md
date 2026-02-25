@@ -255,6 +255,15 @@ TA-TC fails iff there exists a pair of valid triangulations for which the global
 
 ---
 
+## I.2 Test Traceability Index (Executable Mapping)
+
+Executable axiom-to-test mapping is maintained in `tests/AXIOM_TRACEABILITY.md`.
+
+This index is normative for synchronization between theory-level IDs (`TA-*`) and regression/invariant checks.
+When adding or changing axiom-facing tests, update both the test header comments and `tests/AXIOM_TRACEABILITY.md` in the same change.
+
+---
+
 ## T-A1 — Positive Geometry Structure
 
 **Status: D**
