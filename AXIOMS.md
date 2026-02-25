@@ -657,7 +657,16 @@ Not treated:
 * Amplituhedron canonical forms
 * Pushforward generality proofs
 * Non-logarithmic regimes (covariant forms/pairings)
+* Non-logarithmic covariant-form regimes (multiple pole orders) are not implemented as certification pathways.
+* Weighted positive geometries/internal-boundary opposite-orientation loop regimes are out of scope.
+* Current invariants certify only convex affine 2D bounded linear-facet canonical-log regime.
 * Pseudo-positive/null geometries ((\Omega \equiv 0))
+
+Cross-reference to executable gates for these exclusions:
+
+* `TA-LP` blocks certification outside simple-pole log structure.
+* `TA-VN` blocks certification when poles are not visible true-boundary facets in scope.
+* `TA-GC` blocks certification when global cancellation semantics leave non-boundary structures.
 
 Admitting non-log singularities is a **Drift Trigger**:
 spurious cancellation semantics must be redefined.
