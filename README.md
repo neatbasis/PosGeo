@@ -267,17 +267,23 @@ Canonical dependency references:
 
 ---
 
-# Upcoming Work
+# Milestones
 
-## v0.2 — Strengthened Log-Singularity Enforcement
+## v0.2 — Implemented Core, Hardening In Progress
 
-### Already shipped
+### Shipped components
 
-The v0.2 SingularityGate path is present and exercised in tests via:
+The v0.2 log-singularity path is already implemented and shipped in:
 
 * `posgeo.validation.singularity_gate`
 * `assert_log_pure`
 * `singularity_report`
+
+Shipped tests that exercise this path:
+
+* `tests/test_m1_simple_poles_only.py`
+* `tests/test_m1_pole_locality.py`
+* `tests/test_scope_exclusions.py`
 
 Current behavior (as validated in `tests/test_m1_simple_poles_only.py`) already includes:
 
@@ -285,7 +291,7 @@ Current behavior (as validated in `tests/test_m1_simple_poles_only.py`) already 
 * Local chart-order checks for second-order behavior
 * Machine-readable failure reasons for log-purity failures
 
-### Remaining hardening work
+### Remaining hardening work (active)
 
 Ongoing v0.2 hardening focuses on expanding coverage and robustness, including:
 
@@ -297,9 +303,9 @@ This continues the shift from denominator-only heuristics toward definition-leve
 
 ---
 
-## v0.3 — Boundary Reconstruction Engine
+## v0.3 — Planned: Boundary-First Reconstruction Engine
 
-Longer-term goals include:
+Longer-term planned goals include:
 
 * Constraint-based canonical-form construction
 * Triangulation-free solver
