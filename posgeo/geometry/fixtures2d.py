@@ -115,7 +115,57 @@ Q1_QUADRILATERAL_FIXTURE = NamedFixture2D(
 )
 
 
+H1_HEXAGON_FIXTURE = NamedFixture2D(
+    name="h1_hexagon",
+    vertices=(
+        (sp.Rational(0), sp.Rational(1)),
+        (sp.Rational(0), sp.Rational(2)),
+        (sp.Rational(1), sp.Rational(2)),
+        (sp.Rational(2), sp.Rational(1)),
+        (sp.Rational(2), sp.Rational(0)),
+        (sp.Rational(1), sp.Rational(0)),
+    ),
+    facet_equations=(
+        ("H1_x", _X),
+        ("H2_y", _Y),
+        ("H3_2mx", 2 - _X),
+        ("H4_2my", 2 - _Y),
+        ("H5_xpy_m1", _X + _Y - 1),
+        ("H6_3mxmy", 3 - _X - _Y),
+    ),
+    chart_defs={
+        "H1_x": (
+            ("H1_x__t=y", sp.Symbol("u"), sp.Symbol("t"), 1),
+            ("H1_x__t=2-y", sp.Symbol("u"), 2 - sp.Symbol("t"), -1),
+        ),
+        "H2_y": (
+            ("H2_y__t=x", sp.Symbol("t"), sp.Symbol("u"), -1),
+            ("H2_y__t=2-x", 2 - sp.Symbol("t"), sp.Symbol("u"), 1),
+        ),
+        "H3_2mx": (
+            ("H3_2mx__t=y", 2 - sp.Symbol("u"), sp.Symbol("t"), -1),
+            ("H3_2mx__t=2-y", 2 - sp.Symbol("u"), 2 - sp.Symbol("t"), 1),
+        ),
+        "H4_2my": (
+            ("H4_2my__t=x", sp.Symbol("t"), 2 - sp.Symbol("u"), 1),
+            ("H4_2my__t=2-x", 2 - sp.Symbol("t"), 2 - sp.Symbol("u"), -1),
+        ),
+        "H5_xpy_m1": (
+            ("H5_xpy_m1__t=x", sp.Symbol("t"), 1 - sp.Symbol("t") + sp.Symbol("u"), -1),
+            ("H5_xpy_m1__t=y", 1 - sp.Symbol("t") + sp.Symbol("u"), sp.Symbol("t"), 1),
+        ),
+        "H6_3mxmy": (
+            ("H6_3mxmy__t=x", sp.Symbol("t") + sp.Symbol("u"), 3 - sp.Symbol("t"), 1),
+            ("H6_3mxmy__t=y", sp.Symbol("t"), 3 - sp.Symbol("t") - sp.Symbol("u"), 1),
+        ),
+    },
+    triangulation_a=((1, 2, 3), (1, 3, 4), (1, 4, 5), (1, 5, 0)),
+    triangulation_b=((4, 5, 0), (4, 0, 1), (4, 1, 2), (4, 2, 3)),
+)
+
+
 FIXTURES2D: Dict[str, NamedFixture2D] = {
     M1_PENTAGON_FIXTURE.name: M1_PENTAGON_FIXTURE,
     Q1_QUADRILATERAL_FIXTURE.name: Q1_QUADRILATERAL_FIXTURE,
+    H1_HEXAGON_FIXTURE.name: H1_HEXAGON_FIXTURE,
 }

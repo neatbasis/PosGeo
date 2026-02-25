@@ -5,7 +5,7 @@ from typing import Dict, Iterable, List, Tuple
 
 import sympy as sp
 
-from posgeo.geometry.fixtures2d import M1_PENTAGON_FIXTURE, Q1_QUADRILATERAL_FIXTURE
+from posgeo.geometry.fixtures2d import H1_HEXAGON_FIXTURE, M1_PENTAGON_FIXTURE, Q1_QUADRILATERAL_FIXTURE
 from posgeo.geometry.region2d import Region2D
 from posgeo.typing import Canonical1Form, Canonical2Form
 
@@ -246,6 +246,12 @@ def q1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart
     """Charts for the Q1 convex quadrilateral fixture."""
     _ = (x, y)
     return _make_facet_charts({k: list(v) for k, v in Q1_QUADRILATERAL_FIXTURE.chart_defs.items()})
+
+
+def h1_facet_charts_all(x: sp.Symbol, y: sp.Symbol) -> Dict[str, List[FacetChart]]:
+    """Charts for the H1 convex hexagon fixture."""
+    _ = (x, y)
+    return _make_facet_charts({k: list(v) for k, v in H1_HEXAGON_FIXTURE.chart_defs.items()})
 
 
 # Backward-compatible M1 API adapters
