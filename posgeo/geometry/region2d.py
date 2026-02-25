@@ -117,3 +117,36 @@ class PentagonM1Region:
             (sp.Rational(1), sp.Rational(0)),
             (sp.Rational(1, 2), sp.Rational(0)),
         )
+
+
+class QuadrilateralQ1Region:
+    """
+    Convex quadrilateral:
+      x > 0
+      y > 0
+      1-y > 0
+      2-x+y > 0
+
+    Vertices (cyclic order):
+      (0,0), (2,0), (3,1), (0,1)
+    """
+
+    @staticmethod
+    def build() -> Region2D:
+        x, y = sp.symbols("x y", real=True)
+        facets = {
+            "Q1_Lx": OrientedLine2D(x, y, x),
+            "Q1_By": OrientedLine2D(x, y, y),
+            "Q1_T1my": OrientedLine2D(x, y, 1 - y),
+            "Q1_D2mXpy": OrientedLine2D(x, y, 2 - x + y),
+        }
+        return Region2D(x=x, y=y, facets=facets)
+
+    @staticmethod
+    def vertices():
+        return (
+            (sp.Rational(0), sp.Rational(0)),
+            (sp.Rational(2), sp.Rational(0)),
+            (sp.Rational(3), sp.Rational(1)),
+            (sp.Rational(0), sp.Rational(1)),
+        )

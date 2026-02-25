@@ -27,3 +27,8 @@ This artifact maps normalized axiom IDs in `AXIOMS.md` to executable tests, and 
 ## Coverage enforcement
 
 `tests/test_axiom_traceability_contract.py` enforces that every mandatory axiom above has both structural and failure-mode tests as declared in test docstrings.
+
+## Multi-geometry coverage
+
+- Canonical invariant tests for confluence and residue/chart behavior are parametrized across multiple convex polygon fixtures via `tests/helpers/geometry_cases.py` (currently `m1_pentagon` and `q1_quadrilateral`).
+- This extends the same axiom checks beyond the original M1 pentagon while preserving exact symbolic criteria and failure modes.

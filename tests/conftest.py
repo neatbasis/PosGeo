@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from posgeo.geometry.region2d import PentagonM1Region
+from tests.helpers.geometry_cases import GEOMETRY_CASES
 from posgeo.validation.preconditions import OutOfScopeInputError, assert_canonical_scope
 
 
@@ -27,13 +27,14 @@ def enforce_repository_scope_preconditions(request: pytest.FixtureRequest) -> No
     if test_file not in _CANONICAL_INVARIANT_FILES:
         return
 
-    region = PentagonM1Region.build()
-    vertices = list(PentagonM1Region.vertices())
-    try:
-        assert_canonical_scope(
-            region=region,
-            vertices=vertices,
-            geometry_class="convex_polygon_2d_linear",
-        )
-    except OutOfScopeInputError as exc:
-        pytest.fail(f"out-of-scope input: {exc}", pytrace=False)
+    for geometry_case in GEOMETRY_CASES:
+        region = geometry_case.build_region()
+        vertices = list(geometry_case.vertices())
+        try:
+            assert_canonical_scope(
+                region=region,
+                vertices=vertices,
+                geometry_class="convex_polygon_2d_linear",
+            )
+        except OutOfScopeInputError as exc:
+            pytest.fail(f"[{geometry_case.name}] out-of-scope input: {exc}", pytrace=False)

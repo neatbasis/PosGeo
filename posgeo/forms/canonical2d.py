@@ -68,3 +68,36 @@ def triangulation_B_m1(x: sp.Symbol, y: sp.Symbol) -> Triangulation2D:
         Triangle2D.from_vertices(x, y, v3, v1, v2),
     )
     return Triangulation2D(triangles=tris)
+
+
+def q1_quadrilateral_vertices() -> Tuple[Tuple[sp.Rational, sp.Rational], ...]:
+    """
+    Cyclic order (counterclockwise):
+      v0=(0,0), v1=(2,0), v2=(3,1), v3=(0,1)
+    """
+    return (
+        (sp.Rational(0), sp.Rational(0)),
+        (sp.Rational(2), sp.Rational(0)),
+        (sp.Rational(3), sp.Rational(1)),
+        (sp.Rational(0), sp.Rational(1)),
+    )
+
+
+def triangulation_A_q1(x: sp.Symbol, y: sp.Symbol) -> Triangulation2D:
+    """Diagonal (v0,v2): triangles (v0,v1,v2) and (v0,v2,v3)."""
+    v0, v1, v2, v3 = q1_quadrilateral_vertices()
+    tris = (
+        Triangle2D.from_vertices(x, y, v0, v1, v2),
+        Triangle2D.from_vertices(x, y, v0, v2, v3),
+    )
+    return Triangulation2D(triangles=tris)
+
+
+def triangulation_B_q1(x: sp.Symbol, y: sp.Symbol) -> Triangulation2D:
+    """Diagonal (v1,v3): triangles (v0,v1,v3) and (v1,v2,v3)."""
+    v0, v1, v2, v3 = q1_quadrilateral_vertices()
+    tris = (
+        Triangle2D.from_vertices(x, y, v0, v1, v3),
+        Triangle2D.from_vertices(x, y, v1, v2, v3),
+    )
+    return Triangulation2D(triangles=tris)
