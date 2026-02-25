@@ -70,3 +70,36 @@ def assert_no_spurious_locus(form_prefactor: sp.Expr, locus_expr: sp.Expr, *vars
     assert normalized_locus not in den_factors, (
         f"Spurious pole locus survived in denominator: {locus_expr}"
     )
+
+
+def assert_boundary_pole_invariant(
+    prefactor: sp.Expr,
+    boundary_exprs,
+    *vars: sp.Symbol,
+    require_simple_poles: bool = True,
+    internal_locus_exprs=None,
+):
+    """
+    Assert the common denominator-pole invariant for final forms.
+
+    Invariant checks:
+      1) denominator factors are normalized consistently,
+      2) multiplicities are 1 (when ``require_simple_poles=True``),
+      3) every pole factor lies on the supplied boundary-factor set,
+      4) optional internal-locus expressions do not appear as denominator factors.
+    """
+    factors = normalized_denominator_factors(prefactor, *vars)
+    assert_boundary_subset(factors, boundary_exprs, *vars)
+
+    if require_simple_poles:
+        assert_multiplicity_one(factors)
+
+    if internal_locus_exprs:
+        den_factors = {factor for factor, _ in factors}
+        for locus_expr in internal_locus_exprs:
+            normalized_locus = normalize_linear_factor(locus_expr, *vars)
+            assert normalized_locus not in den_factors, (
+                f"Spurious pole locus survived in denominator: {locus_expr}"
+            )
+
+    return factors
