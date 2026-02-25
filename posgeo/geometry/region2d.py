@@ -65,35 +65,22 @@ class Region2D:
             f"Failed to deterministically produce {n} interior rational points; got {len(pts)}."
         )
 
+    def fixed_interior_float_points(self, n: int = 25) -> List[Tuple[float, float]]:
+        """Deterministic float-valued interior sample derived from exact rationals."""
+        return [
+            (float(xv), float(yv))
+            for xv, yv in self.fixed_interior_rational_points(n=n)
+        ]
+
     def sample_interior_points(
         self,
         n: int = 25,
         *,
         deterministic: bool = False,
     ) -> List[Tuple[float, float]]:
-        """
-        Simple rejection sampler for the M1 pentagon (bounded within [0,1]^2).
-        Works because M1 region is defined inside the unit square.
-        """
-        if deterministic:
-            return [
-                (float(xv), float(yv))
-                for xv, yv in self.fixed_interior_rational_points(n=n)
-            ]
-
-        import random
-
-        pts: List[Tuple[float, float]] = []
-        attempts = 0
-        while len(pts) < n and attempts < 100000:
-            attempts += 1
-            xv = random.random()
-            yv = random.random()
-            if self.contains(xv, yv):
-                pts.append((xv, yv))
-        if len(pts) < n:
-            raise RuntimeError(f"Failed to sample {n} interior points; got {len(pts)}.")
-        return pts
+        """Backwards-compatible sampling API, now always deterministic."""
+        _ = deterministic  # retained for API compatibility
+        return self.fixed_interior_float_points(n=n)
 
 
 class PentagonM1Region:
