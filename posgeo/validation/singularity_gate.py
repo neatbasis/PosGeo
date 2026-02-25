@@ -75,6 +75,19 @@ def normalized_denominator_factors(prefactor: sp.Expr, *vars: sp.Symbol) -> Tupl
     return tuple((normalize_linear_factor(factor, *vars), multiplicity) for factor, multiplicity in factors)
 
 
+def has_pole_locus(prefactor: sp.Expr, locus_expr: sp.Expr, *vars: sp.Symbol) -> bool:
+    """Return whether `locus_expr` appears as a (normalized) denominator pole factor."""
+    normalized_locus = normalize_linear_factor(locus_expr, *vars)
+    factors = normalized_denominator_factors(prefactor, *vars)
+    return normalized_locus in {factor for factor, _ in factors}
+
+
+def assert_no_pole_locus(prefactor: sp.Expr, locus_expr: sp.Expr, *vars: sp.Symbol) -> None:
+    """Assert that `locus_expr` does not survive as a denominator pole factor."""
+    if has_pole_locus(prefactor, locus_expr, *vars):
+        raise AssertionError(f"Spurious pole locus survived in denominator: {locus_expr}")
+
+
 def _is_invalid_symbolic_value(expr: sp.Expr) -> bool:
     val = sp.simplify(expr)
     return bool(val.has(sp.nan) or val.has(sp.zoo) or val is sp.oo or val is -sp.oo)

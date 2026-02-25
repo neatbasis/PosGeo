@@ -7,6 +7,7 @@ from posgeo.forms.canonical2d import canonical_form_from_triangulation
 from posgeo.typing import Canonical2Form
 from posgeo.validation import assert_log_pure, singularity_report
 from tests.helpers.geometry_cases import GEOMETRY_CASES
+from tests.helpers.pole_checks import format_failure_reasons
 
 
 @pytest.mark.parametrize("geometry_case", GEOMETRY_CASES, ids=lambda c: c.name)
@@ -50,3 +51,21 @@ def test_assert_log_pure_reports_failures_machine_readably(geometry_case):
 
     with pytest.raises(AssertionError, match="TA-LP log-purity failed"):
         assert_log_pure(bad, region, charts)
+
+
+def test_singularity_report_failure_reasons_snapshot():
+    region = GEOMETRY_CASES[0].build_region()
+    x, y = region.x, region.y
+    charts = GEOMETRY_CASES[0].facet_charts(x, y)
+
+    bad = Canonical2Form(x=x, y=y, prefactor=1 / (x**2 * (x + y + 7)))
+    report = singularity_report(bad, region, charts)
+
+    assert format_failure_reasons(report) == (
+        "non-boundary-pole | non-simple-multiplicity | chart-order-failed"
+    )
+    assert report.failure_reasons == (
+        "non-boundary-pole",
+        "non-simple-multiplicity",
+        "chart-order-failed",
+    )
