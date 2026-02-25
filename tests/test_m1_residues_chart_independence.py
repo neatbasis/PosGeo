@@ -17,6 +17,7 @@ from posgeo.forms.residues2d import (
     expected_interval_prefactor_from_chart,
     expected_interval_prefactor_from_chart_ccw,
 )
+from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
 def _equal_up_to_sign(a: sp.Expr, b: sp.Expr) -> bool:
@@ -79,8 +80,15 @@ def test_residue_chart_independence_deterministic_sign():
         ch0 = charts[0]
         res0 = residue_2form_on_facet(omega2, ch0).simplify()
         exp0 = expected_interval_prefactor_from_chart_ccw(facet, ch0, verts, region=region)
+        base_context = f"{facet}/{ch0.name}"
+        res0_prefactor = assert_valid_symbolic_value(
+            res0.prefactor, context=base_context, quantity="residue prefactor"
+        )
+        exp0_prefactor = assert_valid_symbolic_value(
+            exp0, context=base_context, quantity="expected interval prefactor"
+        )
 
-        assert sp.simplify(res0.prefactor - exp0) == 0, (
+        assert sp.simplify(res0_prefactor - exp0_prefactor) == 0, (
             f"[{facet}] residue in {ch0.name} does not match CCW-expected interval form.\n"
             f"res={res0.prefactor}\nexp={exp0}\n"
             f"diff={sp.simplify(res0.prefactor - exp0)}"
@@ -89,8 +97,15 @@ def test_residue_chart_independence_deterministic_sign():
         for ch in charts[1:]:
             res = residue_2form_on_facet(omega2, ch).simplify()
             exp = expected_interval_prefactor_from_chart_ccw(facet, ch, verts, region=region)
+            context = f"{facet}/{ch.name}"
+            res_prefactor = assert_valid_symbolic_value(
+                res.prefactor, context=context, quantity="residue prefactor"
+            )
+            exp_prefactor = assert_valid_symbolic_value(
+                exp, context=context, quantity="expected interval prefactor"
+            )
 
-            assert sp.simplify(res.prefactor - exp) == 0, (
+            assert sp.simplify(res_prefactor - exp_prefactor) == 0, (
                 f"[{facet}] residue in {ch.name} does not match CCW-expected interval form.\n"
                 f"res={res.prefactor}\nexp={exp}\n"
                 f"diff={sp.simplify(res.prefactor - exp)}"
@@ -100,8 +115,14 @@ def test_residue_chart_independence_deterministic_sign():
             t0 = ch0.t
             t1_of_t0 = _solve_reparam_t1_of_t0(ch0, ch)
             res_pulled = pullback_1form(res, t_new=t0, t_old_expr=t1_of_t0).simplify()
+            pulled_context = f"{facet}/{ch0.name}<={ch.name}"
+            pulled_prefactor = assert_valid_symbolic_value(
+                res_pulled.prefactor,
+                context=pulled_context,
+                quantity="pulled residue prefactor",
+            )
 
-            assert sp.simplify(res_pulled.prefactor - res0.prefactor) == 0, (
+            assert sp.simplify(pulled_prefactor - res0_prefactor) == 0, (
                 f"[{facet}] deterministic chart-independence failed between {ch0.name} and {ch.name}\n"
                 f"res0(t0)={res0.prefactor}\n"
                 f"res1(t1)={res.prefactor}\n"
@@ -136,9 +157,16 @@ def test_residue_chart_independence_up_to_pullback_and_sign():
 
         ch0 = charts[0]
         res0 = residue_2form_on_facet(omega2, ch0).simplify()
+        base_context = f"{facet}/{ch0.name}"
+        res0_prefactor = assert_valid_symbolic_value(
+            res0.prefactor, context=base_context, quantity="residue prefactor"
+        )
 
         exp0 = expected_interval_prefactor_from_chart(facet, ch0, verts)
-        assert _equal_up_to_sign(res0.prefactor, exp0), (
+        exp0_prefactor = assert_valid_symbolic_value(
+            exp0, context=base_context, quantity="expected interval prefactor"
+        )
+        assert _equal_up_to_sign(res0_prefactor, exp0_prefactor), (
             f"[{facet}] residue in {ch0.name} does not match expected interval form.\n"
             f"res={res0.prefactor}\nexp={exp0}\n"
             f"diff={sp.simplify(res0.prefactor - exp0)}\n"
@@ -147,9 +175,16 @@ def test_residue_chart_independence_up_to_pullback_and_sign():
 
         for ch in charts[1:]:
             res = residue_2form_on_facet(omega2, ch).simplify()
+            context = f"{facet}/{ch.name}"
+            res_prefactor = assert_valid_symbolic_value(
+                res.prefactor, context=context, quantity="residue prefactor"
+            )
 
             exp = expected_interval_prefactor_from_chart(facet, ch, verts)
-            assert _equal_up_to_sign(res.prefactor, exp), (
+            exp_prefactor = assert_valid_symbolic_value(
+                exp, context=context, quantity="expected interval prefactor"
+            )
+            assert _equal_up_to_sign(res_prefactor, exp_prefactor), (
                 f"[{facet}] residue in {ch.name} does not match expected interval form.\n"
                 f"res={res.prefactor}\nexp={exp}\n"
                 f"diff={sp.simplify(res.prefactor - exp)}\n"
@@ -160,8 +195,14 @@ def test_residue_chart_independence_up_to_pullback_and_sign():
             t1_of_t0 = _solve_reparam_t1_of_t0(ch0, ch)
 
             res_pulled = pullback_1form(res, t_new=t0, t_old_expr=t1_of_t0).simplify()
+            pulled_context = f"{facet}/{ch0.name}<={ch.name}"
+            pulled_prefactor = assert_valid_symbolic_value(
+                res_pulled.prefactor,
+                context=pulled_context,
+                quantity="pulled residue prefactor",
+            )
 
-            assert _equal_up_to_sign(res_pulled.prefactor, res0.prefactor), (
+            assert _equal_up_to_sign(pulled_prefactor, res0_prefactor), (
                 f"[{facet}] chart-independence failed between {ch0.name} and {ch.name}\n"
                 f"res0(t0)={res0.prefactor}\n"
                 f"res1(t1)={res.prefactor}\n"

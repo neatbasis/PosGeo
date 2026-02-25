@@ -10,6 +10,7 @@ from tests.helpers.pole_checks import (
     assert_multiplicity_one,
     normalized_denominator_factors,
 )
+from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
 def test_m1_final_form_has_only_simple_boundary_poles_and_chart_order_one_limits():
@@ -26,10 +27,21 @@ def test_m1_final_form_has_only_simple_boundary_poles_and_chart_order_one_limits
         for chart in charts:
             f_ut = sp.simplify(omega.prefactor.subs({x: chart.x_of, y: chart.y_of}))
 
-            lim1 = sp.simplify(sp.limit(chart.u * f_ut, chart.u, 0))
-            lim2 = sp.simplify(sp.limit((chart.u**2) * f_ut, chart.u, 0))
-
-            assert lim1 not in {sp.Integer(0), sp.oo, -sp.oo, sp.zoo, sp.nan}, (
-                f"Expected finite nonzero first-order limit on {chart.name}, got {lim1}"
+            chart_context = f"facet-limit[{chart.name}]"
+            lim1 = assert_valid_symbolic_value(
+                sp.limit(chart.u * f_ut, chart.u, 0),
+                context=chart_context,
+                quantity="first-order limit",
             )
-            assert lim2 == 0, f"Expected second-order coefficient to vanish on {chart.name}, got {lim2}"
+            lim2 = assert_valid_symbolic_value(
+                sp.limit((chart.u**2) * f_ut, chart.u, 0),
+                context=chart_context,
+                quantity="second-order limit",
+            )
+
+            assert lim1 != sp.Integer(0), (
+                f"{chart_context}: expected nonzero first-order limit, got {lim1}"
+            )
+            assert lim2 == 0, (
+                f"{chart_context}: expected second-order coefficient to vanish, got {lim2}"
+            )

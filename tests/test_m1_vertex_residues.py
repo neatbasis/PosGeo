@@ -13,30 +13,38 @@ from posgeo.forms.residues2d import (
     m1_facet_charts_all,
     residue_2form_on_facet,
 )
+from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
-def _assert_valid_scalar(label: str, value: sp.Expr) -> None:
-    simplified = sp.simplify(value)
-    assert simplified not in {sp.nan, sp.zoo, sp.oo, -sp.oo}, (
-        f"{label} produced an invalid symbolic value: {simplified}"
+def _endpoint_residue(
+    prefactor: sp.Expr,
+    t: sp.Symbol,
+    endpoint: sp.Expr,
+    *,
+    orientation_sign: int,
+    context: str,
+) -> sp.Expr:
+    return assert_valid_symbolic_value(
+        sp.limit(orientation_sign * (t - endpoint) * prefactor, t, endpoint),
+        context=context,
+        quantity="endpoint residue",
     )
 
 
-def _endpoint_residue(prefactor: sp.Expr, t: sp.Symbol, endpoint: sp.Expr, *, orientation_sign: int) -> sp.Expr:
-    residue = sp.simplify(sp.limit(orientation_sign * (t - endpoint) * prefactor, t, endpoint))
-    _assert_valid_scalar("endpoint residue", residue)
-    return residue
+def _assert_simple_pole(prefactor: sp.Expr, t: sp.Symbol, endpoint: sp.Expr, *, context: str) -> None:
+    c1 = assert_valid_symbolic_value(
+        sp.limit((t - endpoint) * prefactor, t, endpoint),
+        context=context,
+        quantity="first Laurent coefficient",
+    )
+    c2 = assert_valid_symbolic_value(
+        sp.limit((t - endpoint) ** 2 * prefactor, t, endpoint),
+        context=context,
+        quantity="second Laurent coefficient",
+    )
 
-
-def _assert_simple_pole(prefactor: sp.Expr, t: sp.Symbol, endpoint: sp.Expr) -> None:
-    c1 = sp.simplify(sp.limit((t - endpoint) * prefactor, t, endpoint))
-    c2 = sp.simplify(sp.limit((t - endpoint) ** 2 * prefactor, t, endpoint))
-
-    _assert_valid_scalar("first Laurent coefficient", c1)
-    _assert_valid_scalar("second Laurent coefficient", c2)
-
-    assert c1 != 0, f"Expected non-zero first Laurent coefficient at endpoint {endpoint}, got {c1}"
-    assert c2 == 0, f"Expected simple pole at endpoint {endpoint}, second coefficient was {c2}"
+    assert c1 != 0, f"{context}: expected non-zero first Laurent coefficient, got {c1}"
+    assert c2 == 0, f"{context}: expected simple pole, second coefficient was {c2}"
 
 
 def test_m1_vertex_endpoint_residues_orientation_free_are_pm_one():
@@ -52,11 +60,18 @@ def test_m1_vertex_endpoint_residues_orientation_free_are_pm_one():
             t = res.t
             ts, te = interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw)
 
-            _assert_simple_pole(res.prefactor, t, ts)
-            _assert_simple_pole(res.prefactor, t, te)
+            start_context = f"{facet_name}/{chart.name}:start@{ts}"
+            end_context = f"{facet_name}/{chart.name}:end@{te}"
 
-            start = _endpoint_residue(res.prefactor, t, ts, orientation_sign=1)
-            end = _endpoint_residue(res.prefactor, t, te, orientation_sign=1)
+            _assert_simple_pole(res.prefactor, t, ts, context=start_context)
+            _assert_simple_pole(res.prefactor, t, te, context=end_context)
+
+            start = _endpoint_residue(
+                res.prefactor, t, ts, orientation_sign=1, context=start_context
+            )
+            end = _endpoint_residue(
+                res.prefactor, t, te, orientation_sign=1, context=end_context
+            )
 
             assert start in {sp.Integer(1), sp.Integer(-1)}, (
                 f"{facet_name}/{chart.name} start endpoint residue not in ±1: {start}"
@@ -80,8 +95,15 @@ def test_m1_vertex_endpoint_residues_ccw_fixed_are_plus_one():
             ts, te = interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw)
 
             # Endpoint-local CCW coordinates: w_start = ts - t, w_end = t - te.
-            r_start_ccw = _endpoint_residue(res.prefactor, t, ts, orientation_sign=-1)
-            r_end_ccw = _endpoint_residue(res.prefactor, t, te, orientation_sign=1)
+            start_context = f"{facet_name}/{chart.name}:ccw-start@{ts}"
+            end_context = f"{facet_name}/{chart.name}:ccw-end@{te}"
+
+            r_start_ccw = _endpoint_residue(
+                res.prefactor, t, ts, orientation_sign=-1, context=start_context
+            )
+            r_end_ccw = _endpoint_residue(
+                res.prefactor, t, te, orientation_sign=1, context=end_context
+            )
 
             assert sp.simplify(r_start_ccw - 1) == 0, (
                 f"{facet_name}/{chart.name} CCW start residue != +1: {r_start_ccw}"
@@ -104,8 +126,15 @@ def test_m1_terminal_residue_chains_2d_to_vertex_are_pm_one():
             t = residue_on_facet.t
             ts, te = interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw)
 
-            chain_start = _endpoint_residue(residue_on_facet.prefactor, t, ts, orientation_sign=1)
-            chain_end = _endpoint_residue(residue_on_facet.prefactor, t, te, orientation_sign=1)
+            start_context = f"{facet_name}/{chart.name}:chain-start@{ts}"
+            end_context = f"{facet_name}/{chart.name}:chain-end@{te}"
+
+            chain_start = _endpoint_residue(
+                residue_on_facet.prefactor, t, ts, orientation_sign=1, context=start_context
+            )
+            chain_end = _endpoint_residue(
+                residue_on_facet.prefactor, t, te, orientation_sign=1, context=end_context
+            )
 
             assert sp.simplify(chain_start**2 - 1) == 0, (
                 f"{facet_name}/{chart.name} chain-to-start residue not ±1: {chain_start}"
