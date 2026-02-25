@@ -195,6 +195,13 @@ The demo prints:
 * Symbolic equality check
 * Residue comparisons per facet
 
+Short interpretation guide:
+
+* `Simplify(A-B): 0` is the confluence success condition.
+* For each facet, residue comparison is valid if either `res - expected == 0` or `res + expected == 0`.
+* Sign differences can arise from chart orientation conventions and are checked more strictly in tests.
+* Authoritative orientation checks live in `tests/test_m1_residues.py` and `tests/test_m1_orientation_consistency.py`.
+
 ---
 
 # Test Suite
