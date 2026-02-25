@@ -1,3 +1,5 @@
+# Axioms: TA-RR, TA-VN
+
 # tests/test_m1_residues.py
 import sympy as sp
 

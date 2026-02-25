@@ -1,3 +1,5 @@
+# Axioms: TA-TC, TA-E1
+
 import sympy as sp
 
 from posgeo.geometry.region2d import PentagonM1Region

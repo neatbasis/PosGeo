@@ -1,3 +1,5 @@
+# Axioms: TA-LP, TA-GC
+
 from posgeo.geometry.region2d import PentagonM1Region
 from posgeo.forms.canonical2d import canonical_form_from_triangulation, triangulation_A_m1
 from tests.helpers.pole_checks import assert_boundary_subset, normalized_denominator_factors
