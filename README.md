@@ -243,15 +243,27 @@ Use this ordered checklist for a quick confidence pass:
 
 ## Reproducibility & Supported Environments
 
-CI is configured to run the full `pytest` suite as a required check on pinned interpreter and symbolic-algebra versions:
+### Reproducibility
 
-* Python 3.10, 3.11, and 3.12
-* SymPy 1.12 and 1.13.3
-* pytest 8.3.5
+Recommended baseline tuple for bug reports and local verification: **Python 3.11 + SymPy 1.13.3**.
 
-Local development should target Python >= 3.10 (matching `pyproject.toml`) and prefer one of the CI-pinned SymPy versions for reproducible symbolic behavior.
+From the repository root, a minimal setup and verification flow is:
 
-When debugging symbolic discrepancies, reproduce against one CI matrix tuple first (for example Python 3.11 + SymPy 1.13.3) before widening comparisons.
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install -e . sympy==1.13.3 pytest==8.3.5
+python -m posgeo.demos.demo_m1_pentagon
+pytest
+```
+
+Symbolic simplification and expression forms can vary across Python/SymPy versions, so equivalent mathematics may print differently. The CI matrix is the source of truth for supported combinations and expected pass/fail behavior.
+
+Canonical dependency references:
+
+* `pyproject.toml` for project-level Python/dependency constraints.
+* `.github/workflows/ci.yml.disabled` for the tested matrix tuple definitions.
 
 ---
 
