@@ -16,6 +16,7 @@ MODULES = [
     "tests.test_m1_residues",
     "tests.test_m1_residues_chart_independence",
     "tests.test_m1_vertex_residues",
+    "tests.test_m1_orientation_consistency",
     "tests.test_m1_confluence",
     "tests.test_reparam_nonconstant",
 ]

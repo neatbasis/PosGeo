@@ -14,10 +14,10 @@ from posgeo.forms.residues2d import (
 from tests.helpers.symbolic_validity import assert_valid_symbolic_value
 
 
-def test_residues_match_interval_forms_up_to_sign():
+def test_residues_orientation_agnostic_structural_layer():
     """Axiom IDs: TA-RR. Test type: structural.
 
-Orientation-agnostic residue relation (up to ±) on every chart."""
+Orientation-agnostic structural layer: residue relation holds up to ± on every chart."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
@@ -47,10 +47,10 @@ Orientation-agnostic residue relation (up to ±) on every chart."""
                 f"diff={diff1}, diff(signflip)={diff2}"
             )
         
-def test_residues_match_interval_forms_deterministic_sign():
+def test_residues_orientation_fixed_deterministic_layer():
     """Axiom IDs: TA-RR, TA-VN. Test type: failure-mode.
 
-Fails when deterministic CCW residue signs drift from the expected boundary form."""
+Orientation-fixed deterministic layer: fails when CCW residue signs drift from the expected boundary form."""
     region = PentagonM1Region.build()
     x, y = region.x, region.y
     omega = canonical_form_from_triangulation(triangulation_A_m1(x, y)).simplify()
