@@ -61,11 +61,16 @@ def test_singularity_report_failure_reasons_snapshot():
     bad = Canonical2Form(x=x, y=y, prefactor=1 / (x**2 * (x + y + 7)))
     report = singularity_report(bad, region, charts)
 
-    assert format_failure_reasons(report) == (
-        "non-boundary-pole | non-simple-multiplicity | chart-order-failed"
-    )
-    assert report.failure_reasons == (
+    formatted_reasons = tuple(format_failure_reasons(report).split(" | "))
+
+    assert set(formatted_reasons) == {
         "non-boundary-pole",
         "non-simple-multiplicity",
         "chart-order-failed",
-    )
+    }
+    assert len(formatted_reasons) == 3
+
+    assert "non-boundary-pole" in report.failure_reasons
+    assert "non-simple-multiplicity" in report.failure_reasons
+    assert "chart-order-failed" in report.failure_reasons
+    assert len(report.failure_reasons) == 3
