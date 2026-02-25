@@ -8,8 +8,6 @@ from posgeo.forms.canonical2d import (
     triangulation_A_m1,
     triangulation_B_m1,
 )
-from tests.helpers.symbolic_validity import assert_valid_symbolic_value
-
 
 def test_triangulation_confluence_symbolic():
     """Exact identity gate: triangulation A and B must match symbolically."""
@@ -35,19 +33,14 @@ def test_triangulation_confluence_exact_rational_regression():
     pts = region.fixed_interior_rational_points(n=15)
     for i, (xv, yv) in enumerate(pts):
         point_id = f"confluence-subs[pt#{i}:x={xv},y={yv}]"
-        prefactor_a = assert_valid_symbolic_value(
-            omegaA.prefactor.subs({x: xv, y: yv}),
-            context=point_id,
-            quantity="triangulation-A prefactor",
+        prefactor_a = sp.simplify(omegaA.prefactor.subs({x: xv, y: yv}))
+        prefactor_b = sp.simplify(omegaB.prefactor.subs({x: xv, y: yv}))
+        assert prefactor_a.is_finite is not False, (
+            f"{point_id}: triangulation-A prefactor became non-finite: {prefactor_a}"
         )
-        prefactor_b = assert_valid_symbolic_value(
-            omegaB.prefactor.subs({x: xv, y: yv}),
-            context=point_id,
-            quantity="triangulation-B prefactor",
+        assert prefactor_b.is_finite is not False, (
+            f"{point_id}: triangulation-B prefactor became non-finite: {prefactor_b}"
         )
-        delta = assert_valid_symbolic_value(
-            prefactor_a - prefactor_b,
-            context=point_id,
-            quantity="prefactor delta",
+        assert sp.simplify(prefactor_a - prefactor_b) == 0, (
+            f"{point_id}: expected zero A-B difference, got {prefactor_a - prefactor_b}"
         )
-        assert delta == 0, f"{point_id}: expected zero A-B difference, got {delta}"
