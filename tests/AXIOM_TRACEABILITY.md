@@ -42,5 +42,7 @@ The entries below are descriptive provenance notes for each mandatory axiom. The
 
 ## Multi-geometry coverage
 
-- Canonical invariant tests for confluence and residue/chart behavior are parametrized across multiple convex polygon fixtures via `tests/helpers/geometry_cases.py` (currently `m1_pentagon` and `q1_quadrilateral`).
-- This extends the same axiom checks beyond the original M1 pentagon while preserving exact symbolic criteria and failure modes.
+- Canonical invariant tests for confluence and residue/chart behavior are parametrized across convex polygon fixtures via `tests/helpers/geometry_cases.py`.
+- **Normative fixture:** `m1_pentagon` is the reference geometry tied directly to mandatory axiom falsification criteria.
+- **Stress-only fixtures:** `q1_quadrilateral` and `h1_hexagon` are regression/stress geometries used to validate implementation robustness of the same symbolic invariants.
+- Fixture API-contract coverage for all parametrized invariant geometries is enforced in `tests/test_geometry_fixture_api_contract.py`.

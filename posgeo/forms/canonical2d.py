@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 import sympy as sp
 
 from posgeo.forms.simplex2d import Triangle2D
-from posgeo.geometry.fixtures2d import M1_PENTAGON_FIXTURE, Q1_QUADRILATERAL_FIXTURE
+from posgeo.geometry.fixtures2d import H1_HEXAGON_FIXTURE, M1_PENTAGON_FIXTURE, Q1_QUADRILATERAL_FIXTURE
 from posgeo.typing import Canonical2Form
 from posgeo.validation.triangulation import validate_triangulation
 
@@ -78,6 +78,35 @@ def triangulation_B_m1(x: sp.Symbol, y: sp.Symbol) -> Triangulation2D:
         y,
     )
 
+
+
+
+def h1_hexagon_vertices() -> Tuple[Tuple[sp.Rational, sp.Rational], ...]:
+    """
+    Cyclic order (counterclockwise):
+      v0=(0,1), v1=(0,2), v2=(1,2), v3=(2,1), v4=(2,0), v5=(1,0)
+    """
+    return H1_HEXAGON_FIXTURE.vertices
+
+
+def triangulation_A_h1(x: sp.Symbol, y: sp.Symbol) -> Triangulation2D:
+    """Fan triangulation around vertex v1=(0,2)."""
+    return _triangulation_from_indices(
+        H1_HEXAGON_FIXTURE.vertices,
+        H1_HEXAGON_FIXTURE.triangulation_a,
+        x,
+        y,
+    )
+
+
+def triangulation_B_h1(x: sp.Symbol, y: sp.Symbol) -> Triangulation2D:
+    """Fan triangulation around vertex v4=(2,0)."""
+    return _triangulation_from_indices(
+        H1_HEXAGON_FIXTURE.vertices,
+        H1_HEXAGON_FIXTURE.triangulation_b,
+        x,
+        y,
+    )
 
 def q1_quadrilateral_vertices() -> Tuple[Tuple[sp.Rational, sp.Rational], ...]:
     """
