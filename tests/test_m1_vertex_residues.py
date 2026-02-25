@@ -59,7 +59,7 @@ def test_m1_vertex_endpoint_residues_orientation_free_are_pm_one():
         for chart in charts:
             res = residue_2form_on_facet(omega2, chart).simplify()
             t = res.t
-            ts, te = interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw)
+            ts, te = interval_endpoints_from_chart_ccw(region, facet_name, chart, verts_ccw)
 
             start_context = f"{facet_name}/{chart.name}:start@{ts}"
             end_context = f"{facet_name}/{chart.name}:end@{te}"
@@ -94,7 +94,7 @@ def test_m1_vertex_endpoint_residues_ccw_fixed_are_plus_one():
         for chart in charts:
             res = residue_2form_on_facet(omega2, chart).simplify()
             t = res.t
-            ts, te = interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw)
+            ts, te = interval_endpoints_from_chart_ccw(region, facet_name, chart, verts_ccw)
 
             # Endpoint-local CCW coordinates: w_start = ts - t, w_end = t - te.
             start_context = f"{facet_name}/{chart.name}:ccw-start@{ts}"
@@ -127,7 +127,7 @@ def test_m1_terminal_residue_chains_2d_to_vertex_are_pm_one():
         for chart in charts:
             residue_on_facet = residue_2form_on_facet(omega2, chart).simplify()
             t = residue_on_facet.t
-            ts, te = interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw)
+            ts, te = interval_endpoints_from_chart_ccw(region, facet_name, chart, verts_ccw)
 
             start_context = f"{facet_name}/{chart.name}:chain-start@{ts}"
             end_context = f"{facet_name}/{chart.name}:chain-end@{te}"

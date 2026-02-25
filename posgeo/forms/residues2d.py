@@ -260,17 +260,25 @@ def expected_interval_prefactor_for_m1_facet(facet_name: str, t: sp.Symbol) -> s
     return sp.simplify(exp.subs({chart.t: t}))
 
 
+def interval_endpoints_from_chart_ccw(
+    region: Region2D,
+    facet_name: str,
+    chart: FacetChart,
+    verts_ccw: List[Tuple[sp.Rational, sp.Rational]],
+) -> Tuple[sp.Expr, sp.Expr]:
+    """Return `(t_start,t_end)` for the CCW-oriented edge on a facet."""
+    return _interval_endpoints_from_chart_ccw_impl(region, facet_name, chart, verts_ccw)
+
+
 def interval_endpoints_from_chart_ccw_compat(*args):
-    """Compat shim for old call style: (facet_name, chart, verts_ccw)."""
+    """Compat shim preserving 4-arg calls and loudly rejecting deprecated 3-arg calls."""
     if len(args) == 4:
-        return _interval_endpoints_from_chart_ccw_impl(*args)
+        return interval_endpoints_from_chart_ccw(*args)
     if len(args) == 3:
-        facet_name, chart, verts_ccw = args
-        from posgeo.geometry.region2d import PentagonM1Region
-
-        return _interval_endpoints_from_chart_ccw_impl(PentagonM1Region.build(), facet_name, chart, verts_ccw)
-    raise TypeError("interval_endpoints_from_chart_ccw expects 3 or 4 positional args")
-
-
-# preserve original public name while supporting both signatures
-interval_endpoints_from_chart_ccw = interval_endpoints_from_chart_ccw_compat
+        raise TypeError(
+            "Deprecated ambiguous call: interval_endpoints_from_chart_ccw(facet_name, chart, verts_ccw). "
+            "Pass region explicitly: interval_endpoints_from_chart_ccw(region, facet_name, chart, verts_ccw)."
+        )
+    raise TypeError(
+        "interval_endpoints_from_chart_ccw expects (region, facet_name, chart, verts_ccw)"
+    )
