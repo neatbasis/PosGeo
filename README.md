@@ -51,6 +51,13 @@ All guarantees and invariants currently apply only within:
 
 Any extension beyond this domain requires explicit revision of assumptions and invariants.
 
+### What this does NOT prove
+
+* It does **not** claim universality beyond the convex affine 2D linear-facet domain stated above.
+* It does **not** provide guarantees for projective, nonlinear-boundary, or higher-dimensional geometries.
+* It does **not** yet provide triangulation-free reconstruction; v0.3 is planned and not shipped.
+* It does **not** replace formal proofs in the cited positive-geometry literature.
+
 ---
 
 # Conceptual Framing
