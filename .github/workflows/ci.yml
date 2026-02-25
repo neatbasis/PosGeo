@@ -38,6 +38,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -55,7 +57,13 @@ jobs:
         run: python -m pip check
 
       - name: Docs policy check
-        run: python scripts/docs_policy_check.py --base HEAD~1 --head HEAD
+        shell: bash
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            BASE_SHA="$(git rev-parse HEAD~1)"
+          fi
+          python scripts/docs_policy_check.py --base "$BASE_SHA" --head "${{ github.sha }}"
 
       - name: Run test suite (required)
         run: pytest
