@@ -7,7 +7,7 @@
 ## Project Status
 
 * **v0.1 (current focus)** — Structural validation of canonical-form axioms in a concrete 2D example (M1 pentagon)
-* **v0.2 (next milestone)** — Strengthened log-singularity enforcement (SingularityGate)
+* **v0.2 (implemented, hardening in progress)** — Strengthened log-singularity enforcement (SingularityGate)
 * **v0.3 (planned)** — Boundary-first reconstruction engine (triangulation-free solver)
 
 ---
@@ -228,14 +228,29 @@ When debugging symbolic discrepancies, reproduce against one CI matrix tuple fir
 
 ## v0.2 — Strengthened Log-Singularity Enforcement
 
-The next milestone introduces **SingularityGate**, a stricter validator that will:
+### Already shipped
 
-* Detect higher-order poles explicitly
-* Enforce simple-pole structure locally
-* Provide residue certificates
-* Strengthen coordinate-invariant validation
+The v0.2 SingularityGate path is present and exercised in tests via:
 
-This will upgrade pole-locality checks from denominator-based heuristics to definition-level enforcement.
+* `posgeo.validation.singularity_gate`
+* `assert_log_pure`
+* `singularity_report`
+
+Current behavior (as validated in `tests/test_m1_simple_poles_only.py`) already includes:
+
+* Explicit detection of non-simple pole multiplicities
+* Local chart-order checks for second-order behavior
+* Machine-readable failure reasons for log-purity failures
+
+### Remaining hardening work
+
+Ongoing v0.2 hardening focuses on expanding coverage and robustness, including:
+
+* Broader stress cases beyond the current M1 workflows
+* Additional diagnostics and reporting ergonomics for failing chart checks
+* Further tightening of coordinate-invariant validation paths
+
+This continues the shift from denominator-only heuristics toward definition-level log-singularity enforcement.
 
 ---
 
@@ -400,4 +415,3 @@ The current focus (v0.1) is structural validation.
 Future milestones strengthen singularity enforcement and enable boundary-driven construction.
 
 Validation precedes automation.
-
