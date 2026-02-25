@@ -210,6 +210,18 @@ The test suite enforces:
 
 Failure of any test indicates violation of canonical-form axioms within the declared domain.
 
+## Reproducibility & Supported Environments
+
+CI is configured to run the full `pytest` suite as a required check on pinned interpreter and symbolic-algebra versions:
+
+* Python 3.10, 3.11, and 3.12
+* SymPy 1.12 and 1.13.3
+* pytest 8.3.5
+
+Local development should target Python >= 3.10 (matching `pyproject.toml`) and prefer one of the CI-pinned SymPy versions for reproducible symbolic behavior.
+
+When debugging symbolic discrepancies, reproduce against one CI matrix tuple first (for example Python 3.11 + SymPy 1.13.3) before widening comparisons.
+
 ---
 
 # Upcoming Work
