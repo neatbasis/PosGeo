@@ -1,3 +1,9 @@
+from .triangulation import (
+    InvalidTriangulationError,
+    TriangulationIssue,
+    validate_triangulation,
+)
+
 from .preconditions import (
     OutOfScopeInputError,
     ScopeViolation,
@@ -24,4 +30,7 @@ __all__ = [
     "normalized_denominator_factors",
     "singularity_report",
     "validate_canonical_scope",
+    "InvalidTriangulationError",
+    "TriangulationIssue",
+    "validate_triangulation",
 ]
