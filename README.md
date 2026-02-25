@@ -210,6 +210,15 @@ The test suite enforces:
 
 Failure of any test indicates violation of canonical-form axioms within the declared domain.
 
+# Happy Path Validation
+
+Use this ordered checklist for a quick confidence pass:
+
+1. Run the demo (`python -m posgeo.demos.demo_m1_pentagon`) and confirm triangulation confluence plus residue printouts (links to **TA-TC** and **TA-RR**).
+2. Run `pytest` to enforce the full invariant set end-to-end (covers **TA-TC**, **TA-LP**, **TA-RR**, **TA-E3**, and **TA-VN/TA-GC**).
+3. Treat a fully green run as justification that canonical-form axioms hold for the currently declared scope only (convex affine bounded 2D linear-facet geometry over exact rationals).
+4. When reporting results, explicitly map outcomes to the invariant categories already listed: **TA-TC**, **TA-LP**, **TA-RR**, **TA-E3**, and **TA-VN/TA-GC**.
+
 ## Reproducibility & Supported Environments
 
 CI is configured to run the full `pytest` suite as a required check on pinned interpreter and symbolic-algebra versions:
