@@ -15,7 +15,7 @@ _CANONICAL_INVARIANT_FILES = {
     "test_m1_residues_chart_independence.py",
     "test_m1_simple_poles_only.py",
     "test_m1_vertex_residues.py",
-    "test_chart_jacobian_sign_matches_s.py",
+    "test_m1_orientation_consistency.py",
     "test_reparam_nonconstant.py",
 }
 
