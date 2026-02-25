@@ -413,9 +413,21 @@ This project builds on the development of **positive geometry**, the **amplituhe
   
 ## 🔷 Others
 
-* **Chaim Even-Zohar, Tsviqa Lakrec, Ran J. Tessler(2025)**
+* **Chaim Even-Zohar, Tsviqa Lakrec, Ran J. Tessler (2025)**
   *The Amplituhedron BCFW Triangulation*
   [https://arxiv.org/abs/2112.02703](https://arxiv.org/abs/2112.02703)
+  
+* **Benincasa, Paolo and Parisi, Matteo (2020)**
+  *Positive Geometries and Differential Forms with Non-Logarithmic Singularities I*
+  [https://arxiv.org/abs/2005.03612](https://arxiv.org/abs/2005.03612)
+  
+* **Gabriele Dian, Elia Mazzucchelli, Felix Tellander (2025)**
+  *The two-loop Amplituhedron*
+  [https://arxiv.org/abs/2410.11501](https://arxiv.org/abs/2410.11501)
+  
+* **Nima Arkani-Hamed, Cameron Langer, Akshay Yelleshpur Srikant, and Jaroslav Trnka (2019)**
+  *Deep Into the Amplituhedron: Amplitude Singularities at All Loops and Legs*
+  [https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.122.051601](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.122.051601)
   
 ## 🔷 Scattering Amplitude Methods (Pre-Amplituhedron Foundations)
 
